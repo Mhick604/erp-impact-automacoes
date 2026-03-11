@@ -1,55 +1,44 @@
 package com.suaempresa.gestao.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.suaempresa.gestao.model.Cliente;
 import com.suaempresa.gestao.repository.ClienteRepository;
 
-import jakarta.validation.Valid;
-
-@RestController
-@RequestMapping("/api/clientes")
+@Controller
+@RequestMapping("/clientes") // Todas as rotas aqui começam com /clientes
 public class ClienteController {
 
     @Autowired
     private ClienteRepository repository;
 
+    // 1. Rota para abrir a página e listar os clientes
     @GetMapping
-    public List<Cliente> listarTodos() {
-        return repository.findAll();
-    }
-
-    @PostMapping
-    public Cliente criarCliente(@Valid @RequestBody Cliente novoCliente) {
-        return repository.save(novoCliente);
+    public String listarClientes(Model model) {
+        // Busca todos os clientes do banco e envia para a tela
+        model.addAttribute("clientes", repository.findAll());
+        return "clientes"; // Abre o arquivo templates/clientes.html
     }
     
- // 1. Buscar um cliente específico pelo ID
-    @GetMapping("/{id}")
-    public Cliente buscarPorId(@PathVariable("id") Long id) {
-        return repository.findById(id).orElse(null);
-    }
-
-    // 2. Atualizar um cliente existente
-    @PutMapping("/{id}")
-    public Cliente atualizarCliente(@PathVariable("id") Long id, @RequestBody Cliente clienteModificado) {
-        clienteModificado.setId(id); // Garante que estamos alterando o cliente certo
-        return repository.save(clienteModificado);
-    }
-
-    // 3. Deletar um cliente
-    @DeleteMapping("/{id}")
-    public void deletarCliente(@PathVariable("id") Long id) {
+    @GetMapping("/excluir/{id}")
+    public String excluir(@PathVariable Long id) {
         repository.deleteById(id);
+        return "redirect:/clientes";
+    }
+
+    // 2. Rota para salvar o novo cliente vindo do formulário
+    @PostMapping("/salvar")
+    public String salvarCliente(Cliente cliente) {
+        // Salva no banco de dados (H2 local ou Postgres na Render)
+        repository.save(cliente);
+        
+        // Redireciona de volta para a lista atualizada
+        return "redirect:/clientes";
     }
 }

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Impact Automações | Ordem de Serviço</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        /* Estilo para parecer uma folha A4 */
+        body { background-color: #f0f0f0; padding: 20px; font-family: Arial, sans-serif; }
+        .a4-page {
+            background: white; max-width: 800px; margin: 0 auto;
+            padding: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header-os { border-bottom: 2px solid #0d6efd; padding-bottom: 20px; margin-bottom: 30px; }
+        .info-box { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin-bottom: 20px; }
+        .signature-line { border-top: 1px solid #000; width: 80%; margin: 60px auto 10px auto; }
+        
+        /* Quando for imprimir/salvar PDF, esconde o fundo cinza */
+        @media print {
+            body { background-color: white; padding: 0; }
+            .a4-page { box-shadow: none; padding: 0; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="a4-page">
+        <div class="header-os d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-primary fw-bold mb-0">
+                    <i class="bi bi-cpu"></i> <span th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'Impact Automações'}"></span>
+                </h2>
+                <small class="text-muted" th:text="'CNPJ: ' + ${empresa.cnpj != null ? empresa.cnpj : 'Não informado'}"></small><br>
+                <small class="text-muted" th:text="${empresa.telefone != null ? empresa.telefone : ''}"></small>
+            </div>
+            <div class="text-end">
+                <h4 class="text-secondary mb-0">ORDEM DE SERVIÇO</h4>
+                <h5 class="fw-bold" th:text="'Nº #' + ${os.id}"></h5>
+                <small class="text-muted" th:text="'Data: ' + ${#temporals.format(os.dataAbertura, 'dd/MM/yyyy')}"></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-box">
+                    <h6 class="text-primary fw-bold border-bottom pb-2"><i class="bi bi-person"></i> Dados do Cliente</h6>
+                    <strong>Nome:</strong> <span th:text="${os.cliente.nome}"></span><br>
+                    <strong>CPF/CNPJ:</strong> <span th:text="${os.cliente.cpfCnpj != null ? os.cliente.cpfCnpj : '---'}"></span><br>
+                    <strong>Telefone:</strong> <span th:text="${os.cliente.telefone}"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-box">
+                    <h6 class="text-primary fw-bold border-bottom pb-2"><i class="bi bi-tools"></i> Responsável Técnico</h6>
+                    <strong>Técnico:</strong> <span th:text="${os.tecnico.nome}"></span><br>
+                    <strong>Especialidade:</strong> <span th:text="${os.tecnico.especialidade}"></span><br>
+                    <strong>Status da O.S.:</strong> <span th:text="${os.status}" class="fw-bold"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box mt-2">
+            <h6 class="text-primary fw-bold border-bottom pb-2"><i class="bi bi-card-text"></i> Descrição do Serviço / Projeto de Automação</h6>
+            <p style="white-space: pre-line;" th:text="${os.descricao}"></p>
+        </div>
+
+        <div class="text-end mt-4 mb-5">
+            <h5 class="text-secondary d-inline me-3">Valor Total do Serviço:</h5>
+            <h3 class="text-success d-inline fw-bold" th:text="'R$ ' + ${#numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA')}"></h3>
+        </div>
+
+        <div class="row text-center mt-5 pt-5">
+            <div class="col-6">
+                <div class="signature-line"></div>
+                <small class="fw-bold" th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'Impact Automações'}"></small><br>
+                <small class="text-muted">Prestador do Serviço</small>
+            </div>
+            <div class="col-6">
+                <div class="signature-line"></div>
+                <small class="fw-bold" th:text="${os.cliente.nome}"></small><br>
+                <small class="text-muted">Cliente / Contratante</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500); // Espera meio segundo para carregar a fonte bonita e abre a impressão
+        }
+    </script>
+</body>
+</html>

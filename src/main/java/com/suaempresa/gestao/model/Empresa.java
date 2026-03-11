@@ -6,34 +6,33 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class Cliente {
+public class Empresa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
-    private String cpfCnpj;
+    private String nomeFantasia;
+    private String cnpj;
     private String telefone;
     private String email;
     private String endereco;
-    private String tipoServico; // Ex: Automação, Elétrica, Manutenção
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getNome() {
-		return nome;
+	public String getNomeFantasia() {
+		return nomeFantasia;
 	}
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setNomeFantasia(String nomeFantasia) {
+		this.nomeFantasia = nomeFantasia;
 	}
-	public String getCpfCnpj() {
-		return cpfCnpj;
+	public String getCnpj() {
+		return cnpj;
 	}
-	public void setCpfCnpj(String cpfCnpj) {
-		this.cpfCnpj = cpfCnpj;
+	public void setCnpj(String cnpj) {
+		this.cnpj = cnpj;
 	}
 	public String getTelefone() {
 		return telefone;
@@ -53,15 +52,7 @@ public class Cliente {
 	public void setEndereco(String endereco) {
 		this.endereco = endereco;
 	}
-	public String getTipoServico() {
-		return tipoServico;
-	}
-	public void setTipoServico(String tipoServico) {
-		this.tipoServico = tipoServico;
-	}
 
     
-   
+    
 }
-
- 

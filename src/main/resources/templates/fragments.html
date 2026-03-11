@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <style th:fragment="estilos">
+        :root { --sidebar-width: 80px; --sidebar-hover-width: 250px; }
+        body { padding-left: var(--sidebar-width); background-color: #f8f9fa; }
+        
+        .sidebar {
+            position: fixed; top: 0; left: 0; height: 100vh; width: var(--sidebar-width);
+            background: rgba(33, 37, 41, 0.85); backdrop-filter: blur(8px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1); overflow-x: hidden;
+            transition: width 0.3s ease; z-index: 1000; display: flex;
+            flex-direction: column; padding-top: 20px;
+        }
+        .sidebar:hover { width: var(--sidebar-hover-width); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+        .sidebar .logo-container { display: flex; align-items: center; padding: 0 25px; margin-bottom: 40px; color: white; white-space: nowrap; }
+        .sidebar .logo-container i { font-size: 1.8rem; min-width: 40px; color: #0d6efd; }
+        .sidebar .logo-container span { font-size: 1.3rem; font-weight: bold; opacity: 0; transition: opacity 0.3s; margin-left: 10px;}
+        .sidebar:hover .logo-container span { opacity: 1; }
+        
+        .sidebar-link { display: flex; align-items: center; padding: 15px 25px; color: rgba(255,255,255,0.6); text-decoration: none; white-space: nowrap; transition: all 0.2s ease; }
+        .sidebar-link i { font-size: 1.4rem; min-width: 40px; }
+        .sidebar-link span { font-size: 1rem; opacity: 0; transition: opacity 0.3s; margin-left: 10px; }
+        .sidebar:hover .sidebar-link span { opacity: 1; }
+        
+        .sidebar-link:hover, .sidebar-link.active { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid #0d6efd; }
+        .sidebar-link.logout { margin-top: auto; margin-bottom: 20px; color: #dc3545; border-left: 4px solid transparent; }
+        .sidebar-link.logout:hover { background: rgba(220, 53, 69, 0.1); border-left-color: #dc3545; }
+        .card-dash { transition: transform 0.2s; } .card-dash:hover { transform: translateY(-5px); }
+    </style>
+
+    <div th:fragment="menuLateral(paginaAtiva)" class="sidebar">
+        <div class="logo-container">
+            <i class="bi bi-cpu-fill"></i>
+            <span>Impact ERP</span>
+        </div>
+        
+        <a href="/" class="sidebar-link" th:classappend="${paginaAtiva == 'dashboard'} ? 'active' : ''">
+            <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+        </a>
+        <a href="/clientes" class="sidebar-link" th:classappend="${paginaAtiva == 'clientes'} ? 'active' : ''">
+            <i class="bi bi-people"></i><span>Clientes</span>
+        </a>
+        <a href="/tecnicos" class="sidebar-link" th:classappend="${paginaAtiva == 'tecnicos'} ? 'active' : ''">
+            <i class="bi bi-tools"></i><span>Técnicos</span>
+        </a>
+        <a href="/ordens" class="sidebar-link" th:classappend="${paginaAtiva == 'ordens'} ? 'active' : ''">
+            <i class="bi bi-clipboard-check"></i><span>Ordens de Serviço</span>
+        </a>
+        <a href="/financeiro" class="sidebar-link" th:classappend="${paginaAtiva == 'financeiro'} ? 'active' : ''">
+            <i class="bi bi-currency-dollar"></i><span>Financeiro</span>
+        </a>
+        <a href="/empresa" class="sidebar-link" th:classappend="${paginaAtiva == 'empresa'} ? 'active' : ''">
+            <i class="bi bi-building-gear"></i><span>Empresa</span>
+        </a>
+        <a href="/logout" class="sidebar-link logout">
+            <i class="bi bi-box-arrow-right"></i><span>Sair do Sistema</span>
+        </a>
+    </div>
+
+</body>
+</html>

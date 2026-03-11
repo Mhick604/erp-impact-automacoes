@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact ERP | Financeiro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<head>
+    <th:block th:replace="~{fragments :: estilos}"></th:block>
+</head>
+<body class="bg-light">
+
+    <div th:replace="~{fragments :: menuLateral('clientes')}"></div>
+<body class="bg-light">
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 p-4 mb-4">
+                    <h5 class="card-title mb-4"><i class="bi bi-cash-coin"></i> Novo Lançamento</h5>
+                    <form th:action="@{/financeiro/salvar}" method="POST">
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Descrição</label>
+                            <input type="text" name="descricao" class="form-control" placeholder="Ex: Compra de Fios / Pgto OS #1" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Valor (R$)</label>
+                                <input type="number" name="valor" class="form-control" step="0.01" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Tipo</label>
+                                <select name="tipo" class="form-select text-center fw-bold" required>
+                                    <option value="RECEITA" class="text-success">ENTRADA (+)</option>
+                                    <option value="DESPESA" class="text-danger">SAÍDA (-)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Situação</label>
+                            <select name="status" class="form-select">
+                                <option value="PENDENTE">Aguardando Pagamento</option>
+                                <option value="PAGO">Já foi Pago/Recebido</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100 fw-bold">
+                            <i class="bi bi-check-lg"></i> Registrar Valor
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 p-4">
+                    <h5 class="card-title mb-4"><i class="bi bi-wallet2"></i> Fluxo de Caixa</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Descrição</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="l : ${lancamentos}">
+                                    <td class="small" th:text="${#temporals.format(l.data, 'dd/MM/yyyy')}"></td>
+                                    <td class="fw-bold text-secondary" th:text="${l.descricao}"></td>
+                                    
+                                    <td>
+                                        <span class="badge" th:classappend="${l.tipo == 'RECEITA' ? 'bg-success' : 'bg-danger'}" th:text="${l.tipo}"></span>
+                                    </td>
+                                    
+                                    <td class="fw-bold" th:classappend="${l.tipo == 'RECEITA' ? 'text-success' : 'text-danger'}" th:text="'R$ ' + ${#numbers.formatDecimal(l.valor, 1, 'POINT', 2, 'COMMA')}"></td>
+                                    
+                                    <td>
+                                        <span class="badge" th:classappend="${l.status == 'PAGO' ? 'bg-primary' : 'bg-warning text-dark'}" th:text="${l.status}"></span>
+                                    </td>
+                                    
+                                    <td class="text-center">
+                                        <a th:if="${l.status == 'PENDENTE'}" th:href="@{/financeiro/pagar/{id}(id=${l.id})}" class="btn btn-outline-success btn-sm me-1" title="Marcar como Pago">
+                                            <i class="bi bi-check-all"></i>
+                                        </a>
+                                        <a th:href="@{/financeiro/excluir/{id}(id=${l.id})}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Apagar este lançamento?')">
+                                           <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

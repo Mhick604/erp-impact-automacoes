@@ -1,4 +1,4 @@
-package com.suaempresa.gestao.security; // Ajuste para o seu pacote
+package com.suaempresa.gestao.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,26 +17,37 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desabilita proteção CSRF (útil para APIs neste momento)
+            .csrf(csrf -> csrf.disable()) // Desabilita proteção CSRF (Útil para testes agora)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**", "/js/**").permitAll() // Libera essas rotas para todos
-                .anyRequest().authenticated() // Tranca TODO o resto do sistema
+                // 1. A PORTA DA FRENTE (A CORREÇÃO ESTÁ AQUI): 
+                // O Spring precisa saber que a página /login é pública, senão ele fica te redirecionando em loop infinito.
+            		.requestMatchers("/login", "/error", "/css/**", "/js/**", "/img/**").permitAll()
+                
+                // 2. O RESTO DO SISTEMA (FECHADO A SETE CHAVES):
+                .requestMatchers("/clientes/**", "/empresa/**", "/tecnicos/**", "/ordens/**", "/financeiro/**").authenticated()
+                .anyRequest().authenticated() // Qualquer outra página também precisa de login
             )
             .formLogin(form -> form
-                .permitAll() // Usa a tela de login padrão do Spring (por enquanto)
+                .loginPage("/login") // Diz ao Spring qual é a nossa tela HTML bonita
+                .defaultSuccessUrl("/", true) // Se a senha estiver certa, vai direto pro Dashboard (index.html)
+                .permitAll()
             )
-            .logout(logout -> logout.permitAll());
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout") // Mostra a mensagem verde quando sair
+                .permitAll()
+            );
 
         return http.build();
     }
 
-    // Liga o "embaralhador" de senhas (Criptografia forte)
+    // Cria o "Cofre" para criptografar as senhas no banco de dados
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configura o gerenciador de autenticação
+    // Configura o gerenciador oficial de autenticação
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
