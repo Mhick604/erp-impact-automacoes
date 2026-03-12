@@ -168,7 +168,10 @@
                                                     onclick="abrirWhatsApp(this)">
                                                     <i class="bi bi-whatsapp"></i>
                                                 </button>
-
+												<button type="button" class="btn btn-sm btn-outline-primary border-0 me-1" title="Editar O.S."
+												        data-bs-toggle="modal" th:data-bs-target="'#modalEditOS' + ${os.id}">
+												    <i class="bi bi-pencil-square"></i>
+												</button>
                                                 <button th:if="${os.fotos != null and !os.fotos.isEmpty()}" type="button" class="btn btn-sm btn-outline-info border-0 shadow-sm me-1" title="Ver Fotos" data-bs-toggle="modal" th:data-bs-target="'#modalFotos' + ${os.id}">
                                                     <i class="bi bi-images"></i> <span class="badge bg-info text-dark ms-1" th:text="${os.fotos.size()}"></span>
                                                 </button>

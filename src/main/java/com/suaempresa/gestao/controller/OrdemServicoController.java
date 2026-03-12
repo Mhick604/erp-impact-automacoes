@@ -57,8 +57,19 @@ public class OrdemServicoController {
     @PostMapping("/salvar")
     public String salvarOS(OrdemServico ordemServico, 
                            @RequestParam(value = "arquivosFotos", required = false) MultipartFile[] arquivos) {
-        
-        try {
+                try {
+                    // 👇 ADICIONE ESTE BLOCO DE ESCUDO AQUI 👇
+                    // Se a OS já tem um ID, significa que é uma EDIÇÃO
+                    if (ordemServico.getId() != null) {
+                        OrdemServico osAntiga = osRepository.findById(ordemServico.getId()).orElse(null);
+                        if (osAntiga != null) {
+                            // Copia as fotos antigas para a OS nova para elas não sumirem!
+                            ordemServico.setFotos(osAntiga.getFotos()); 
+                        }
+                    }
+                    // 👆 FIM DO BLOCO DE ESCUDO 👆
+
+                    // ... (O resto do seu código continua normal: salva as novas fotos, chama o osRepository.save, dispara o gatilho financeiro, etc)
             // 1. Verifica se vieram arquivos da tela
             if (arquivos != null && arquivos.length > 0) {
                 
