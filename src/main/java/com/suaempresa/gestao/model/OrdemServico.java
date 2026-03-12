@@ -1,12 +1,16 @@
 package com.suaempresa.gestao.model;
 
+import java.time.LocalDate;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
-import java.time.LocalDate;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class OrdemServico {
@@ -18,6 +22,9 @@ public class OrdemServico {
     private Double valor;
     private String status = "PENDENTE"; // PENDENTE, ANDAMENTO, CONCLUIDA
     private LocalDate dataAbertura = LocalDate.now();
+    private String tipo; // Vai guardar se é "ORÇAMENTO" ou "OS DEFINITIVA"
+    private String codigoImovel; // Ex: "Cód. 3344"
+    
 
     // Uma OS tem apenas UM Cliente (Mas um cliente pode ter várias OS)
     @ManyToOne
@@ -28,7 +35,24 @@ public class OrdemServico {
     @ManyToOne
     @JoinColumn(name = "tecnico_id")
     private Tecnico tecnico;
+    
+ // --- NOVOS CAMPOS (UPGRADE IMOBILIÁRIA) ---
+    
+    @Column(columnDefinition = "TEXT")
+    private String problemasIdentificados; // TEXT permite textos gigantes
+    
+    @Column(columnDefinition = "TEXT")
+    private String servicoRealizado;
+    
+    @Column(columnDefinition = "TEXT")
+    private String observacoes;
+    
+    private java.time.LocalDate dataFinalizacao;
 
+    // --- A LISTA DE FOTOS ---
+    // O 'CascadeType.ALL' faz com que se você apagar a OS, as fotos apagam junto para não lotar o banco.
+    @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<FotosOS> fotos = new java.util.ArrayList<>();
 	public Long getId() {
 		return id;
 	}
@@ -83,6 +107,62 @@ public class OrdemServico {
 
 	public void setTecnico(Tecnico tecnico) {
 		this.tecnico = tecnico;
+	}
+
+	public java.time.LocalDate getDataFinalizacao() {
+		return dataFinalizacao;
+	}
+
+	public void setDataFinalizacao(java.time.LocalDate dataFinalizacao) {
+		this.dataFinalizacao = dataFinalizacao;
+	}
+
+	public String getCodigoImovel() {
+		return codigoImovel;
+	}
+
+	public void setCodigoImovel(String codigoImovel) {
+		this.codigoImovel = codigoImovel;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
+	public String getProblemasIdentificados() {
+		return problemasIdentificados;
+	}
+
+	public void setProblemasIdentificados(String problemasIdentificados) {
+		this.problemasIdentificados = problemasIdentificados;
+	}
+
+	public String getServicoRealizado() {
+		return servicoRealizado;
+	}
+
+	public void setServicoRealizado(String servicoRealizado) {
+		this.servicoRealizado = servicoRealizado;
+	}
+
+	public String getObservacoes() {
+		return observacoes;
+	}
+
+	public void setObservacoes(String observacoes) {
+		this.observacoes = observacoes;
+	}
+
+	public java.util.List<FotosOS> getFotos() {
+		return fotos;
+	}
+
+	public void setFotos(java.util.List<FotosOS> fotos) {
+		this.fotos = fotos;
 	}
 
     

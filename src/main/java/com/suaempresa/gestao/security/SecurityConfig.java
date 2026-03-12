@@ -19,14 +19,18 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // Desabilita proteção CSRF (Útil para testes agora)
             .authorizeHttpRequests(auth -> auth
-                // 1. A PORTA DA FRENTE (A CORREÇÃO ESTÁ AQUI): 
-                // O Spring precisa saber que a página /login é pública, senão ele fica te redirecionando em loop infinito.
-            		.requestMatchers("/login", "/error", "/css/**", "/js/**", "/img/**").permitAll()
-                
-                // 2. O RESTO DO SISTEMA (FECHADO A SETE CHAVES):
-                .requestMatchers("/clientes/**", "/empresa/**", "/tecnicos/**", "/ordens/**", "/financeiro/**").authenticated()
-                .anyRequest().authenticated() // Qualquer outra página também precisa de login
-            )
+            	    // 1. ACESSO PÚBLICO: Qualquer um (mesmo sem logar) vê isso
+            		.requestMatchers("/","/login", "/error", "/css/**", "/js/**", "/img/", "/clientes/**", "/empresa/**", "/tecnicos/**", "/ordens/**", "/financeiro/**", "/usuarios/**").hasRole("ADMIN")
+            	    
+            	    // 2. ACESSO DO TÉCNICO: O técnico só pode entrar no portal dele e concluir serviços
+            	    .requestMatchers("/ordens/tecnico/**", "/ordens/concluir-app/**").hasAnyRole("TECNICO", "ADMIN")
+            	    
+            	    // 3. ACESSO DO ADMINISTRADOR: Todo o resto (Financeiro, Clientes, Dashboard) é só pro ADM
+            	    .requestMatchers("/", "/clientes/**", "/empresa/**", "/tecnicos/**", "/ordens/**", "/financeiro/**").hasRole("ADMIN")
+            	    
+            	    // Qualquer outra rota não mapeada exige login
+            	    .anyRequest().authenticated()
+            	)
             .formLogin(form -> form
                 .loginPage("/login") // Diz ao Spring qual é a nossa tela HTML bonita
                 .defaultSuccessUrl("/", true) // Se a senha estiver certa, vai direto pro Dashboard (index.html)

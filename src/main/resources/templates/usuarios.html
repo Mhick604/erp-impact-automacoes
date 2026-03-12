@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Impact ERP | Usuários e Acessos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <th:block th:replace="~{fragments :: estilos}"></th:block>
+</head>
+<body class="bg-light">
+
+    <div class="d-flex">
+        <div th:replace="~{fragments :: menuLateral('configuracoes')}"></div>
+
+        <div class="flex-grow-1 p-4">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0"><i class="bi bi-shield-lock text-primary me-2"></i>Controle de Acessos</h4>
+                <button class="btn btn-primary fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalUsuario">
+                    <i class="bi bi-person-plus-fill me-2"></i> Novo Usuário
+                </button>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Login (Usuário)</th>
+                                    <th>Nível de Acesso</th>
+                                    <th class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="user : ${usuarios}">
+                                    <td class="text-muted fw-bold">#<span th:text="${user.id}"></span></td>
+                                    <td>
+                                        <i class="bi bi-person-circle fs-5 me-2 text-secondary"></i>
+                                        <span class="fw-bold text-dark" th:text="${user.nome}"></span>
+                                    </td>
+                                    <td th:text="${user.login}"></td>
+                                    <td>
+                                        <span class="badge rounded-pill px-3" 
+                                              th:classappend="${user.regra == 'ROLE_ADMIN' ? 'bg-primary' : (user.regra == 'ROLE_TECNICO' ? 'bg-info text-dark' : 'bg-danger')}"
+                                              th:text="${user.regra == 'ROLE_ADMIN' ? 'ADMINISTRADOR' : (user.regra == 'ROLE_TECNICO' ? 'TÉCNICO (CAMPO)' : 'ACESSO BLOQUEADO')}">
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-secondary border-0 shadow-sm me-1" title="Editar Acesso/Senha"
+                                                data-bs-toggle="modal" th:data-bs-target="'#modalEdit' + ${user.id}">
+                                            <i class="bi bi-pencil-square"></i> Editar
+                                        </button>
+                                        
+                                        <a th:href="@{/usuarios/excluir/{id}(id=${user.id})}" class="btn btn-sm btn-outline-danger border-0 shadow-sm" onclick="return confirm('ATENÇÃO: Excluir este usuário removerá permanentemente o acesso dele. Continuar?');" title="Excluir">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <th:block th:each="user : ${usuarios}">
+        <div class="modal fade" th:id="'modalEdit' + ${user.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header bg-light border-0">
+                        <h5 class="modal-title fw-bold"><i class="bi bi-person-gear text-primary me-2"></i>Editar Usuário</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/usuarios/salvar}" method="POST">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}" />
+                        <input type="hidden" name="id" th:value="${user.id}">
+                        
+                        <div class="modal-body p-4">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Nome Completo</label>
+                                <input type="text" name="nome" class="form-control bg-light" th:value="${user.nome}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Nome de Login</label>
+                                <input type="text" name="login" class="form-control bg-light" th:value="${user.login}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Nível de Acesso (Permissões)</label>
+                                <select name="regra" class="form-select bg-light" required>
+                                    <option value="ROLE_ADMIN" th:selected="${user.regra == 'ROLE_ADMIN'}">👑 Administrador (Acesso Total)</option>
+                                    <option value="ROLE_TECNICO" th:selected="${user.regra == 'ROLE_TECNICO'}">📱 Técnico (Apenas App de Campo)</option>
+                                    <option value="ROLE_BLOQUEADO" th:selected="${user.regra == 'ROLE_BLOQUEADO'}">🚫 Acesso Negado (Bloqueado)</option>
+                                </select>
+                            </div>
+                            <hr class="text-muted">
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold text-danger"><i class="bi bi-key me-1"></i>Alterar Senha</label>
+                                <input type="password" name="novaSenha" class="form-control border-danger border-opacity-25" placeholder="Deixe em branco para NÃO alterar">
+                                <small class="text-muted" style="font-size: 0.7rem;">Se preencher este campo, a senha atual será substituída.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 bg-light">
+                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Salvar Configurações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+	<div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+	        <div class="modal-dialog modal-dialog-centered">
+	            <div class="modal-content border-0 shadow-lg rounded-4">
+	                <div class="modal-header bg-primary text-white border-0">
+	                    <h5 class="modal-title fw-bold"><i class="bi bi-person-plus-fill me-2"></i>Novo Usuário</h5>
+	                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+	                </div>
+	                <form th:action="@{/usuarios/salvar}" method="POST">
+	                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}" />
+	                    
+	                    <div class="modal-body p-4">
+	                        <div class="mb-3">
+	                            <label class="form-label small fw-bold">Nome Completo</label>
+	                            <input type="text" name="nome" class="form-control bg-light" placeholder="Ex: Carlos Eletricista" required>
+	                        </div>
+	                        <div class="mb-3">
+	                            <label class="form-label small fw-bold">Nome de Login</label>
+	                            <input type="text" name="login" class="form-control bg-light" placeholder="Ex: carlos" required>
+	                        </div>
+	                        <div class="mb-3">
+	                            <label class="form-label small fw-bold">Nível de Acesso (Permissões)</label>
+	                            <select name="regra" class="form-select bg-light" required>
+	                                <option value="ROLE_TECNICO">📱 Técnico (Apenas App de Campo)</option>
+	                                <option value="ROLE_ADMIN">👑 Administrador (Acesso Total)</option>
+	                            </select>
+	                        </div>
+	                        <div class="mb-2">
+	                            <label class="form-label small fw-bold"><i class="bi bi-key me-1"></i>Senha Inicial</label>
+	                            <input type="password" name="novaSenha" class="form-control" placeholder="Crie uma senha" required>
+	                        </div>
+	                    </div>
+	                    <div class="modal-footer border-0 bg-light">
+	                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+	                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Cadastrar</button>
+	                    </div>
+	                </form>
+	            </div>
+	        </div>
+	    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

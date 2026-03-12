@@ -1,115 +1,272 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Impact ERP | Ordens de Serviço</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-</head>
-<head>
+    
     <th:block th:replace="~{fragments :: estilos}"></th:block>
 </head>
 <body class="bg-light">
 
-    <div th:replace="~{fragments :: menuLateral('ordens')}"></div>
-<body class="bg-light">
-    <div class="container py-4">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 p-4 mb-4">
-                    <h5 class="card-title mb-4"><i class="bi bi-file-earmark-plus"></i> Nova O.S.</h5>
-                    <form th:action="@{/ordens/salvar}" method="POST">
-                        
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Selecione o Cliente</label>
-                            <select name="cliente" class="form-select" required>
-                                <option value="">Escolha um cliente...</option>
-                                <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"></option>
-                            </select>
-                        </div>
+    <div class="d-flex">
+        <div th:replace="~{fragments :: menuLateral('ordens')}"></div>
 
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Técnico Responsável</label>
-                            <select name="tecnico" class="form-select" required>
-                                <option value="">Escolha um técnico...</option>
-                                <option th:each="t : ${tecnicos}" th:value="${t.id}" th:text="${t.nome}"></option>
-                            </select>
-                        </div>
+        <div class="flex-grow-1 p-4">
+            
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold mb-4"><i class="bi bi-plus-square-dotted me-2"></i>Nova O.S.</h5>
+                            
+                            <form th:action="@{/ordens/salvar}" method="POST" enctype="multipart/form-data">
+                                
+                                <div class="p-3 mb-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-3 shadow-sm">
+                                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-info-circle-fill me-2"></i>1. Identificação da O.S.</h6>
+                                    
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small text-dark mb-1">Tipo</label>
+                                            <select name="tipo" class="form-select border-0 shadow-sm">
+                                                <option value="DEFINITIVA">🔧 O.S. Definitiva</option>
+                                                <option value="ORCAMENTO">📝 Orçamento</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small text-dark mb-1">Cód. Imóvel</label>
+                                            <input type="text" name="codigoImovel" class="form-control border-0 shadow-sm" placeholder="Ex: Cód 3344">
+                                        </div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label fw-bold small text-dark mb-1">Data Finalização</label>
+                                            <input type="date" name="dataFinalizacao" class="form-control border-0 shadow-sm">
+                                        </div>
+                                        <div class="col-md-7">
+                                            <label class="form-label fw-bold small text-dark mb-1"><i class="bi bi-camera me-1"></i>Fotos (Antes/Depois)</label>
+                                            <input type="file" name="arquivosFotos" class="form-control border-0 shadow-sm text-muted" multiple accept="image/*">
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Descrição do Serviço</label>
-                            <textarea name="descricao" class="form-control" rows="3" placeholder="Ex: Instalação de fita LED e relés Wi-Fi" required></textarea>
-                        </div>
+                                <div class="p-3 mb-4 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-3 shadow-sm">
+                                    <h6 class="fw-bold text-danger mb-3"><i class="bi bi-tools me-2"></i>2. Diagnóstico e Serviço</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold small text-dark mb-1">Problemas Identificados</label>
+                                        <textarea name="problemasIdentificados" class="form-control border-0 shadow-sm" rows="2" placeholder="Descreva os vazamentos, defeitos, etc..."></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold small text-dark mb-1">Serviço a ser Realizado</label>
+                                        <textarea name="servicoRealizado" class="form-control border-0 shadow-sm" rows="2" placeholder="O que será consertado ou trocado?"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="form-label fw-bold small text-dark mb-1">Observações / Peças extras</label>
+                                        <textarea name="observacoes" class="form-control border-0 shadow-sm text-muted" rows="1" placeholder="Ex: Cliente vai comprar o material..."></textarea>
+                                    </div>
+                                </div>
 
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <label class="form-label small fw-bold">Valor (R$)</label>
-                                <input type="number" name="valor" class="form-control" step="0.01" placeholder="0.00" required>
+                                <div class="p-3 mb-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3 shadow-sm">
+                                    <h6 class="fw-bold text-success mb-3"><i class="bi bi-check-circle-fill me-2"></i>3. Fechamento e Valores</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold small text-dark mb-1">Título Resumido do Serviço</label>
+                                        <input type="text" name="descricao" class="form-control border-0 shadow-sm" placeholder="Ex: Reparo hidráulico na suíte..." required>
+                                    </div>
+
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small text-dark mb-1">Cliente / Imobiliária</label>
+                                            <select name="cliente" class="form-select border-0 shadow-sm" required>
+                                                <option value="">Selecione...</option>
+                                                <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small text-dark mb-1">Técnico Designado</label>
+                                            <select name="tecnico" class="form-select border-0 shadow-sm" required>
+                                                <option value="">Selecione...</option>
+                                                <option th:each="t : ${tecnicos}" th:value="${t.id}" th:text="${t.nome}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small text-dark mb-1">Valor (R$)</label>
+                                            <div class="input-group input-group-sm shadow-sm">
+                                                <span class="input-group-text bg-success text-white border-0 fw-bold">R$</span>
+                                                <input type="number" step="0.01" name="valor" class="form-control border-0" placeholder="0.00" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small text-dark mb-1">Status da O.S.</label>
+                                            <select name="status" class="form-select border-0 shadow-sm fw-bold text-secondary">
+                                                <option value="ABERTA">🟢 Aberta</option>
+                                                <option value="EM_ANDAMENTO">🟡 Em Andamento</option>
+                                                <option value="CONCLUIDA">🔵 Concluída</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow">
+                                    <i class="bi bi-save me-2"></i> SALVAR ORDEM DE SERVIÇO
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold mb-4"><i class="bi bi-card-checklist me-2"></i>Serviços em Andamento</h5>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nº O.S.</th>
+                                            <th>Cliente</th>
+                                            <th>Técnico</th>
+                                            <th>Valor</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="os : ${ordens}">
+                                            <td class="fw-bold text-secondary">#<span th:text="${os.id}"></span></td>
+                                            <td class="fw-bold" th:text="${os.cliente.nome}"></td>
+                                            <td th:text="${os.tecnico.nome}"></td>
+                                            <td class="fw-bold text-success">R$ <span th:text="${#numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA')}"></span></td>
+                                            <td>
+                                                <span class="badge" 
+                                                      th:classappend="${os.status == 'ABERTA' ? 'bg-success' : (os.status == 'EM_ANDAMENTO' ? 'bg-warning text-dark' : 'bg-primary')}"
+                                                      th:text="${os.status}">
+                                                </span>
+                                            </td>
+                                            <td class="text-center text-nowrap">
+                                                <a th:href="@{/ordens/imprimir/{id}(id=${os.id})}" target="_blank" class="btn btn-sm btn-outline-secondary border-0 shadow-sm" title="Gerar PDF">
+                                                    <i class="bi bi-printer"></i>
+                                                </a>
+                                                
+                                                <button class="btn btn-sm btn-outline-success border-0 shadow-sm mx-1" title="Enviar WhatsApp"
+                                                    th:data-tipo="${os.tipo}"
+                                                    th:data-codigo="${os.codigoImovel}"
+                                                    th:data-endereco="${os.cliente.endereco}"
+                                                    th:data-valor="${#numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA')}"
+                                                    th:data-datafinal="${os.dataFinalizacao}"
+                                                    th:data-problemas="${os.problemasIdentificados}"
+                                                    th:data-servicos="${os.servicoRealizado}"
+                                                    th:data-obs="${os.observacoes}"
+                                                    onclick="abrirWhatsApp(this)">
+                                                    <i class="bi bi-whatsapp"></i>
+                                                </button>
+
+                                                <button th:if="${os.fotos != null and !os.fotos.isEmpty()}" type="button" class="btn btn-sm btn-outline-info border-0 shadow-sm me-1" title="Ver Fotos" data-bs-toggle="modal" th:data-bs-target="'#modalFotos' + ${os.id}">
+                                                    <i class="bi bi-images"></i> <span class="badge bg-info text-dark ms-1" th:text="${os.fotos.size()}"></span>
+                                                </button>
+
+                                                <a th:href="@{/ordens/excluir/{id}(id=${os.id})}" class="btn btn-sm btn-outline-danger border-0 shadow-sm" onclick="return confirm('Excluir esta OS?');" title="Excluir">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(ordens)}">
+                                            <td colspan="6" class="text-center text-muted py-4">Nenhuma ordem de serviço cadastrada.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="col-6">
-                                <label class="form-label small fw-bold">Status</label>
-                                <select name="status" class="form-select">
-                                    <option value="PENDENTE">Pendente</option>
-                                    <option value="ANDAMENTO">Em Andamento</option>
-                                    <option value="CONCLUIDA">Concluída</option>
-                                </select>
-                            </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-info w-100 text-dark fw-bold">
-                            <i class="bi bi-check-lg"></i> Salvar O.S.
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
+            
+        </div>
+    </div>
 
-            <div class="col-md-8">
-                <div class="card shadow-sm border-0 p-4">
-                    <h5 class="card-title mb-4"><i class="bi bi-card-checklist"></i> Serviços em Andamento</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nº O.S.</th>
-                                    <th>Cliente</th>
-                                    <th>Técnico</th>
-                                    <th>Valor</th>
-                                    <th>Status</th>
-                                    <th class="text-center">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="os : ${ordens}">
-                                    <td class="fw-bold text-secondary" th:text="'#' + ${os.id}"></td>
-                                    <td class="fw-bold" th:text="${os?.cliente?.nome}"></td>
-                                    <td th:text="${os?.tecnico?.nome}"></td>
-                                    <td class="text-success fw-bold" th:text="'R$ ' + ${#numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA')}"></td>
-                                    <td>
-                                        <span class="badge" 
-                                              th:classappend="${os.status == 'PENDENTE' ? 'bg-danger' : (os.status == 'ANDAMENTO' ? 'bg-warning text-dark' : 'bg-success')}" 
-                                              th:text="${os.status}">
-                                        </span>
-                                    </td>
-									
-									<td class="text-center">
-									        <a th:if="${os?.id != null}" th:href="@{/ordens/imprimir/{id}(id=${os.id})}" target="_blank" class="btn btn-outline-secondary btn-sm me-1" title="Gerar PDF">
-									           <i class="bi bi-printer"></i>
-									        </a>
-
-									        <a th:if="${os?.id != null}" th:href="@{/ordens/excluir/{id}(id=${os.id})}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Excluir esta OS?')">
-									           <i class="bi bi-trash"></i>
-									        </a>
-									    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+    <th:block th:each="os : ${ordens}">
+        <div th:if="${os.fotos != null and !os.fotos.isEmpty()}" class="modal fade" th:id="'modalFotos' + ${os.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-dark text-white border-0">
+                        <h5 class="modal-title"><i class="bi bi-camera me-2"></i>Fotos do Serviço O.S. #<span th:text="${os.id}"></span></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body text-center bg-secondary bg-opacity-10 py-4">
+                        <div th:each="foto, iterStat : ${os.fotos}" class="mb-4 position-relative">
+                            <span class="badge bg-dark position-absolute top-0 start-50 translate-middle mt-2 z-3 shadow">
+                                Foto <span th:text="${iterStat.count}"></span>
+                            </span>
+                            <img th:src="@{/ordens/foto/{idOs}/{indice}(idOs=${os.id}, indice=${iterStat.index})}" class="img-fluid rounded-3 shadow" style="max-height: 600px; border: 4px solid white;">
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer border-0 bg-light">
+                        <p class="small text-muted me-auto"><i class="bi bi-info-circle"></i> Clique com o botão direito na imagem para 'Copiar imagem'.</p>
+                        <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Fechar</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </th:block>
 
+    <script>
+    function abrirWhatsApp(botao) {
+        const tipo = botao.getAttribute('data-tipo');
+        const codigo = botao.getAttribute('data-codigo') || 'N/A';
+        const endereco = botao.getAttribute('data-endereco') || 'Endereço não cadastrado';
+        const valor = botao.getAttribute('data-valor');
+        
+        let dataFormatada = 'Não informada';
+        const dataCrua = botao.getAttribute('data-datafinal');
+        if(dataCrua) {
+            const partes = dataCrua.split('-');
+            dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        const problemas = botao.getAttribute('data-problemas') || '';
+        const servicos = botao.getAttribute('data-servicos') || '';
+        const obs = botao.getAttribute('data-obs') || '';
+
+        let mensagem = '';
+
+        if (tipo === 'DEFINITIVA') {
+            mensagem = `*REPARO REALIZADO*\n`;
+            if(codigo !== 'N/A' && codigo !== '') mensagem += `_Cód. ${codigo}_\n\n`;
+            mensagem += `*Endereço:* ${endereco}\n\n`;
+            mensagem += `*Valor:* R$ ${valor}\n\n`;
+            mensagem += `*Data de Finalização:* ${dataFormatada}\n\n`;
+            mensagem += `*👇🏻 Imagens e Vídeos abaixo 👇🏻*`;
+        } else {
+            mensagem = `*ORÇAMENTO*\n`;
+            if(codigo !== 'N/A' && codigo !== '') mensagem += `_Cód. ${codigo}_\n\n`;
+            mensagem += `*Data:* ${dataFormatada}\n\n`;
+            mensagem += `*Endereço:* ${endereco}\n\n`;
+            
+            if(problemas) mensagem += `*Problemas identificados*\n- ${problemas}\n\n`;
+            if(servicos) mensagem += `*Serviço a ser realizado*\n- ${servicos}\n\n`;
+            
+            mensagem += `*Valor:* R$ ${valor} (Mão de obra e material)\n\n`;
+            if(obs) mensagem += `*Obs.:* ${obs}`;
+        }
+
+        const textoCodificado = encodeURIComponent(mensagem);
+        const linkWhatsApp = `https://api.whatsapp.com/send?text=${textoCodificado}`;
+        
+        window.open(linkWhatsApp, '_blank');
+    }
+    </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

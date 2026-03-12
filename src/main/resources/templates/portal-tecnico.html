@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Impact App | Técnico</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        body { background-color: #f4f7f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .mobile-header { background-color: #0d6efd; color: white; padding: 25px 20px 35px 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; box-shadow: 0 4px 10px rgba(13,110,253,0.2); }
+        .os-card { border-radius: 16px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-top: -20px; margin-bottom: 20px; border-left: 6px solid #ffc107; background: white; z-index: 10; position: relative;}
+    </style>
+</head>
+<body>
+
+    <div class="mobile-header d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0 fw-bold">Olá, <span th:text="${tecnico != null ? tecnico.nome : 'Técnico'}"></span>! 👋</h4>
+            <span class="text-white-50 small">Sua rota de trabalho de hoje</span>
+        </div>
+        <img src="https://ui-avatars.com/api/?name=Tecnico&background=ffffff&color=0d6efd" class="rounded-circle shadow-sm" width="45">
+    </div>
+
+    <div class="container px-3 pb-5">
+        
+        <div th:if="${#lists.isEmpty(ordens)}" class="text-center mt-5 pt-4 text-muted">
+            <i class="bi bi-emoji-sunglasses fs-1 text-success mb-3 d-block"></i>
+            <h5 class="fw-bold text-dark">Tudo limpo por aqui!</h5>
+            <p class="small">Você não tem serviços pendentes no momento. Pode tomar um café! ☕</p>
+        </div>
+
+        <div th:each="os : ${ordens}" class="card os-card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-2">O.S. #<span th:text="${os.id}"></span></span>
+                <span class="text-danger fw-bold small"><i class="bi bi-clock-history"></i> Pendente</span>
+            </div>
+
+            <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-building me-2 text-primary"></i><span th:text="${os.cliente.nome}"></span></h5>
+            
+            <a th:href="'https://maps.google.com/?q=' + ${os.cliente.endereco}" target="_blank" class="text-decoration-none">
+                <p class="text-muted small mb-3"><i class="bi bi-geo-alt-fill text-danger me-1"></i> <span th:text="${os.cliente.endereco}"></span> <i class="bi bi-box-arrow-up-right ms-1"></i></p>
+            </a>
+            
+            <div class="bg-light p-3 rounded-4 mb-4 small border border-secondary border-opacity-10">
+                <div class="fw-bold text-dark mb-1">Diagnóstico / Serviço:</div>
+                <span class="text-secondary" th:text="${os.descricao}"></span>
+            </div>
+
+            <a th:href="@{/ordens/concluir-app/{id}(id=${os.id})}" class="btn btn-success w-100 fw-bold rounded-pill py-3 shadow-sm" onclick="return confirm('Trabalho finalizado? O financeiro será notificado!');">
+                <i class="bi bi-check2-circle fs-5 me-2"></i> CONCLUIR SERVIÇO
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>
