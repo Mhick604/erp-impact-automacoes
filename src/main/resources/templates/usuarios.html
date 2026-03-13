@@ -50,19 +50,19 @@
                                     </td>
 									<td class="text-center">
 									    <a th:if="${user.regra == 'ROLE_TECNICO'}"
-									       th:href="'https://api.whatsapp.com/send?text=Ol%C3%A1,%20*' + ${user.nome} + '*!%20%F0%9F%91%8B%0A%0AAqui%20est%C3%A1%20o%20link%20do%20seu%20*App%20de%20T%C3%A9cnico*%20da%20Impact%20Automa%C3%A7%C3%B5es:%0A%F0%9F%93%B2%20https://erp-impact-automacoes-2.onrender.com/ordens/tecnico/' + ${user.id} + '%0A%0A%F0%9F%91%A4%20*Usu%C3%A1rio:*%20' + ${user.login} + '%0A%F0%9F%94%92%20*Senha:*%20%28Sua%20senha%20padr%C3%A3o%29'" 
+									       th:href="@{https://api.whatsapp.com/send(text='Olá, *' + ${user.nome} + '*! 👋 Acesse seu App de Técnico aqui: https://erp-impact-automacoes-2.onrender.com/ordens/tecnico/' + ${user.id} + ' | Seu Usuário é: ' + ${user.login})}"
 									       target="_blank" 
 									       class="btn btn-sm btn-outline-success border-0 shadow-sm me-1" 
 									       title="Enviar App pelo WhatsApp">
 									        <i class="bi bi-whatsapp"></i> App
 									    </a>
 
-									    <button class="btn btn-sm btn-outline-secondary border-0 shadow-sm me-1" title="Editar Acesso/Senha"
+									    <button class="btn btn-sm btn-outline-secondary border-0 shadow-sm me-1" title="Editar Acesso"
 									            data-bs-toggle="modal" th:data-bs-target="'#modalEdit' + ${user.id}">
 									        <i class="bi bi-pencil-square"></i>
 									    </button>
 									    
-									    <a th:href="@{/usuarios/excluir/{id}(id=${user.id})}" class="btn btn-sm btn-outline-danger border-0 shadow-sm" onclick="return confirm('ATENÇÃO: Excluir este usuário removerá permanentemente o acesso dele. Continuar?');" title="Excluir">
+									    <a th:href="@{/usuarios/excluir/{id}(id=${user.id})}" class="btn btn-sm btn-outline-danger border-0 shadow-sm" onclick="return confirm('ATENÇÃO: Excluir este usuário?');" title="Excluir">
 									        <i class="bi bi-trash"></i>
 									    </a>
 									</td>
