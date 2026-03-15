@@ -181,25 +181,30 @@ public class OrdemServicoController {
     }
     
  // ==========================================
-    // 📱 ROTAS DO APP DO TÉCNICO (CELULAR) 📱
+    // 🚦 ROTA INTELIGENTE: DESCOBRE O ID DO TÉCNICO LOGADO
     // ==========================================
-    
-    // 1. Abre a tela do celular filtrando só as O.S. do técnico
-    @GetMapping("/tecnico/{tecnicoId}")
-    public String portalTecnico(@PathVariable Long tecnicoId, Model model) {
-        // Busca o técnico no banco de dados para dar "Boas vindas"
-        com.suaempresa.gestao.model.Tecnico tecnico = tecnicoRepository.findById(tecnicoId).orElse(null);
+    @GetMapping("/tecnico/painel")
+    public String painelAutomatico(java.security.Principal principal) {
         
-        // Puxa as O.S. e filtra: Só do técnico selecionado E que não estejam concluídas
-        List<OrdemServico> osDoTecnico = osRepository.findAll().stream()
-            .filter(os -> os.getTecnico() != null && os.getTecnico().getId().equals(tecnicoId))
-            .filter(os -> !"CONCLUIDA".equals(os.getStatus()))
-            .toList();
+        // 1. Pega o login de quem acabou de entrar (ex: "junior") e deixa tudo minúsculo
+        String loginDoUsuario = principal.getName().toLowerCase(); 
 
-        model.addAttribute("ordens", osDoTecnico);
-        model.addAttribute("tecnico", tecnico);
+        // 2. Busca todos os técnicos cadastrados no sistema
+        List<com.suaempresa.gestao.model.Tecnico> todosOsTecnicos = tecnicoRepository.findAll();
+        
+        // 3. Procura qual técnico tem o nome que combina com o login (ex: "Vanderlei Júnior" contém "junior")
+        com.suaempresa.gestao.model.Tecnico tecnicoLogado = todosOsTecnicos.stream()
+            .filter(t -> t.getNome() != null && t.getNome().toLowerCase().contains(loginDoUsuario))
+            .findFirst()
+            .orElse(null);
 
-        return "portal-tecnico"; // Vai chamar nosso novo HTML
+        // 4. Se achou o técnico, manda ele pro link correto dele (ex: /ordens/tecnico/1)
+        if (tecnicoLogado != null) {
+            return "redirect:/ordens/tecnico/" + tecnicoLogado.getId();
+        } else {
+            // Se o login for "carlos" mas não existir nenhum técnico Carlos, volta pro início
+            return "redirect:/?erro=tecnico-nao-encontrado";
+        }
     }
 
     // 2. O botão verde gigante do App (Conclui e dispara o financeiro)
@@ -233,4 +238,5 @@ public class OrdemServicoController {
         }
         return "redirect:/";
     }
+    
 }
