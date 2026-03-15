@@ -25,50 +25,66 @@ public class DashboardController {
     public String carregarDashboard(Model model) {
         
         // ==========================================
-        // 1. LÓGICA FINANCEIRA (A sua obra-prima)
+        // 1. LÓGICA FINANCEIRA (BLINDADA)
         // ==========================================
         List<Lancamento> lancamentos = lancamentoRepo.findAll();
         
+        // Agora aceita "RECEITA" ou "ENTRADA", em qualquer formato (maiusculo/minusculo)
         double totalReceitas = lancamentos.stream()
-            .filter(l -> "RECEITA".equals(l.getTipo()) && "PAGO".equals(l.getStatus()))
+            .filter(l -> l.getTipo() != null && 
+                        (l.getTipo().equalsIgnoreCase("RECEITA") || l.getTipo().equalsIgnoreCase("ENTRADA")) && 
+                        l.getStatus() != null && l.getStatus().equalsIgnoreCase("PAGO") && 
+                        l.getValor() != null)
             .mapToDouble(Lancamento::getValor).sum();
             
+        // Aceita "DESPESA" ou "SAIDA"
         double totalDespesas = lancamentos.stream()
-            .filter(l -> "DESPESA".equals(l.getTipo()) && "PAGO".equals(l.getStatus()))
+            .filter(l -> l.getTipo() != null && 
+                        (l.getTipo().equalsIgnoreCase("DESPESA") || l.getTipo().equalsIgnoreCase("SAIDA")) && 
+                        l.getStatus() != null && l.getStatus().equalsIgnoreCase("PAGO") && 
+                        l.getValor() != null)
             .mapToDouble(Lancamento::getValor).sum();
 
         double caixaAtual = totalReceitas - totalDespesas;
 
-        // Envia para a tela
         model.addAttribute("caixaAtual", caixaAtual);
         model.addAttribute("totalClientes", clienteRepo.count());
 
         // ==========================================
-        // 2. LÓGICA DA OPERAÇÃO (Radar e O.S.)
+        // 2. LÓGICA DA OPERAÇÃO E FATURAMENTO
         // ==========================================
         List<OrdemServico> todasAsOs = osRepo.findAll();
         
         long qtdAndamento = todasAsOs.stream()
-                .filter(os -> "ABERTA".equals(os.getStatus()) || "EM_ANDAMENTO".equals(os.getStatus()))
+                .filter(os -> os.getStatus() != null && 
+                             (os.getStatus().equalsIgnoreCase("ABERTA") || os.getStatus().equalsIgnoreCase("EM_ANDAMENTO")))
                 .count();
                 
         long qtdConcluidas = todasAsOs.stream()
-                .filter(os -> "CONCLUIDA".equals(os.getStatus()))
+                .filter(os -> os.getStatus() != null && os.getStatus().equalsIgnoreCase("CONCLUIDA"))
                 .count();
                 
-        double valorPendente = todasAsOs.stream()
-                .filter(os -> "CONCLUIDA".equals(os.getStatus()))
+        // SOMA TODAS AS O.S. CONCLUÍDAS
+        double totalOsConcluidas = todasAsOs.stream()
+                .filter(os -> os.getStatus() != null && os.getStatus().equalsIgnoreCase("CONCLUIDA") && os.getValor() != null)
                 .mapToDouble(OrdemServico::getValor)
                 .sum();
 
-        // Envia para a tela
+        // MATEMÁTICA: O que tem de O.S. pronta MENOS o que já entrou de dinheiro no caixa
+        double valorPendente = totalOsConcluidas - totalReceitas;
+        
+        // Impede que fique com saldo negativo no painel
+        if (valorPendente < 0) {
+            valorPendente = 0.0;
+        }
+
         model.addAttribute("qtdAndamento", qtdAndamento);
         model.addAttribute("qtdConcluidas", qtdConcluidas);
         model.addAttribute("valorPendente", valorPendente);
         
-        // Pega as últimas O.S. que não estão concluídas para o Radar de Técnicos
+        // Pega as últimas O.S. ativas para o Radar
         List<OrdemServico> osAtivas = todasAsOs.stream()
-                .filter(os -> !"CONCLUIDA".equals(os.getStatus()))
+                .filter(os -> os.getStatus() != null && !os.getStatus().equalsIgnoreCase("CONCLUIDA"))
                 .limit(5)
                 .collect(Collectors.toList());
                 

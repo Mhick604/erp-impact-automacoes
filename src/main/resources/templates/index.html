@@ -28,7 +28,7 @@
                     <div class="card border-0 shadow-sm rounded-4 bg-primary bg-opacity-10 h-100">
                         <div class="card-body">
                             <h6 class="text-primary fw-bold"><i class="bi bi-tools me-2"></i>Serviços em Andamento</h6>
-                            <h2 class="fw-bold mb-0" th:text="${qtdAndamento}">0</h2>
+                            <h2 class="fw-bold mb-0" th:text="${qtdAndamento != null ? qtdAndamento : '0'}">0</h2>
                             <small class="text-muted">Serviços ativos na rua</small>
                         </div>
                     </div>
@@ -37,7 +37,9 @@
                     <div class="card border-0 shadow-sm rounded-4 bg-success bg-opacity-10 h-100">
                         <div class="card-body">
                             <h6 class="text-success fw-bold text-dark"><i class="bi bi-bank me-2"></i>Saldo em Caixa</h6>
-                            <h2 class="fw-bold text-success mb-0">R$ <span th:text="${#numbers.formatDecimal(caixaAtual, 1, 'POINT', 2, 'COMMA')}">0,00</span></h2>
+                            <h2 class="fw-bold mb-0" th:classappend="${caixaAtual != null and caixaAtual >= 0 ? 'text-success' : 'text-danger'}">
+                                R$ <span th:text="${caixaAtual != null ? #numbers.formatDecimal(caixaAtual, 1, 'POINT', 2, 'COMMA') : '0,00'}">0,00</span>
+                            </h2>
                             <small class="text-muted">Receitas - Despesas</small>
                         </div>
                     </div>
@@ -46,7 +48,7 @@
                     <div class="card border-0 shadow-sm rounded-4 bg-info bg-opacity-10 h-100">
                         <div class="card-body">
                             <h6 class="text-info fw-bold text-dark"><i class="bi bi-check-circle me-2"></i>Concluídos (Total)</h6>
-                            <h2 class="fw-bold mb-0 text-dark" th:text="${qtdConcluidas}">0</h2>
+                            <h2 class="fw-bold mb-0 text-dark" th:text="${qtdConcluidas != null ? qtdConcluidas : '0'}">0</h2>
                             <small class="text-muted">Histórico da empresa</small>
                         </div>
                     </div>
@@ -55,7 +57,9 @@
                     <div class="card border-0 shadow-sm rounded-4 bg-danger bg-opacity-10 h-100">
                         <div class="card-body">
                             <h6 class="text-danger fw-bold"><i class="bi bi-cash-coin me-2"></i>Aguardando Faturamento</h6>
-                            <h2 class="fw-bold mb-0">R$ <span th:text="${#numbers.formatDecimal(valorPendente, 1, 'POINT', 2, 'COMMA')}">0,00</span></h2>
+                            <h2 class="fw-bold text-danger mb-0">
+                                R$ <span th:text="${valorPendente != null ? #numbers.formatDecimal(valorPendente, 1, 'POINT', 2, 'COMMA') : '0,00'}">0,00</span>
+                            </h2>
                             <small class="text-muted">De O.S. já entregues</small>
                         </div>
                     </div>
@@ -83,11 +87,13 @@
                                     <tbody>
                                         <tr th:each="os : ${ultimasOs}">
                                             <td class="fw-bold text-muted">#<span th:text="${os.id}"></span></td>
+                                            
                                             <td>
                                                 <i class="bi bi-person-circle text-secondary fs-5 me-1"></i>
-                                                <span th:text="${os.tecnico.nome}"></span>
+                                                <span th:text="${os.tecnico?.nome ?: 'Não designado'}"></span>
                                             </td>
-                                            <td class="small fw-bold" th:text="${os.cliente.nome}"></td>
+                                            <td class="small fw-bold" th:text="${os.cliente?.nome ?: 'Sem Cliente'}"></td>
+                                            
                                             <td class="small text-truncate" style="max-width: 150px;" th:text="${os.descricao}"></td>
                                             <td>
                                                 <span class="badge" 
@@ -114,7 +120,8 @@
                             </div>
                             
                             <div class="list-group list-group-flush rounded-3 shadow-sm">
-                                <div class="list-group-item list-group-item-action py-3 border-start border-danger border-4" th:if="${valorPendente > 0}">
+                                
+                                <div class="list-group-item list-group-item-action py-3 border-start border-danger border-4" th:if="${valorPendente != null and valorPendente > 0}">
                                     <div class="d-flex w-100 justify-content-between mb-1">
                                         <h6 class="mb-1 fw-bold text-danger">Faturamento Pendente</h6>
                                     </div>
@@ -125,7 +132,7 @@
                                     <div class="d-flex w-100 justify-content-between mb-1">
                                         <h6 class="mb-1 fw-bold text-primary">Base de Clientes</h6>
                                     </div>
-                                    <p class="mb-1 small">A Impact Automações tem <b th:text="${totalClientes}"></b> clientes/imobiliárias cadastrados.</p>
+                                    <p class="mb-1 small">A Impact Automações tem <b th:text="${totalClientes != null ? totalClientes : '0'}"></b> clientes/imobiliárias cadastrados.</p>
                                 </div>
                             </div>
 
