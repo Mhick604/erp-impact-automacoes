@@ -137,7 +137,7 @@ public class OrdemServicoController {
     }
     
     // ==========================================
-    // 📱 1. A TELA DO APP (A PEÇA QUE ESTAVA FALTANDO!)
+    // 📱 1. A TELA DO APP 
     // ==========================================
     @GetMapping("/tecnico/{tecnicoId}")
     public String portalTecnico(@PathVariable Long tecnicoId, Model model) {
@@ -150,6 +150,9 @@ public class OrdemServicoController {
 
         model.addAttribute("ordens", osDoTecnico);
         model.addAttribute("tecnico", tecnico);
+        
+        // Pega a empresa para o botão de WhatsApp do Escritório funcionar no App
+        model.addAttribute("empresa", empresaRepository.findAll().stream().findFirst().orElse(new Empresa()));
 
         return "portal-tecnico"; 
     }
@@ -184,7 +187,7 @@ public class OrdemServicoController {
     }
 
     // ==========================================
-    // ✅ 3. O BOTÃO VERDE DO APP (Conclui e gera receita)
+    // ✅ 3. O BOTÃO ANTIGO DO APP (MANTIDO PARA EVITAR QUEBRAS)
     // ==========================================
     @GetMapping("/concluir-app/{id}")
     public String concluirPeloApp(@PathVariable Long id) {
@@ -210,6 +213,65 @@ public class OrdemServicoController {
             
             osRepository.save(os);
             return "redirect:/ordens/tecnico/" + os.getTecnico().getId();
+        }
+        return "redirect:/";
+    }
+
+    // ==========================================
+    // 📸 4. A NOVA ROTA VIP DO APP (COM FOTO E RELATO)
+    // ==========================================
+    @PostMapping("/tecnico/concluir")
+    public String concluirPeloAppForm(@RequestParam("id") Long id, 
+                                      @RequestParam(value = "servicoRealizado", required = false) String servicoRealizado,
+                                      @RequestParam(value = "arquivosFotos", required = false) MultipartFile[] arquivos) {
+        
+        OrdemServico os = osRepository.findById(id).orElse(null);
+        if(os != null) {
+            os.setStatus("CONCLUIDA");
+            
+            // Salva o texto que o técnico digitou no celular
+            if(servicoRealizado != null && !servicoRealizado.isEmpty()) {
+                os.setServicoRealizado(servicoRealizado);
+            }
+            
+            try {
+                // Salva a foto do serviço (Câmera do celular)
+                if (arquivos != null && arquivos.length > 0) {
+                    for (MultipartFile arquivo : arquivos) {
+                        if (!arquivo.isEmpty()) {
+                            FotosOS novaFoto = new FotosOS();
+                            novaFoto.setDadosImagem(arquivo.getBytes());
+                            novaFoto.setTipoArquivo(arquivo.getContentType());
+                            novaFoto.setOrdemServico(os);
+                            os.getFotos().add(novaFoto);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Erro ao anexar foto do técnico: " + e.getMessage());
+            }
+            
+            // Gatilho Financeiro
+            String identificador = "O.S. #" + os.getId();
+            List<Lancamento> todosLancamentos = lancamentoRepo.findAll();
+            boolean jaFoiCobrado = todosLancamentos.stream()
+                    .anyMatch(l -> l.getDescricao() != null && l.getDescricao().contains(identificador));
+            
+            if (!jaFoiCobrado) {
+                Lancamento novaReceita = new Lancamento();
+                String nomeCliente = (os.getCliente() != null) ? os.getCliente().getNome() : "Cliente não informado";
+                novaReceita.setDescricao("Receita " + identificador + " - " + nomeCliente);
+                novaReceita.setValor(os.getValor());
+                novaReceita.setTipo("RECEITA");
+                novaReceita.setStatus("PENDENTE");
+                novaReceita.setData(LocalDate.now());
+                lancamentoRepo.save(novaReceita);
+            }
+            
+            osRepository.save(os);
+            
+            // O TÉCNICO VOLTA PARA A TELA DELE!
+            return "redirect:/ordens/tecnico/painel";
         }
         return "redirect:/";
     }
