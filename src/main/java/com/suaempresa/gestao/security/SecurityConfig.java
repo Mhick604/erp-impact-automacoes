@@ -20,8 +20,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Desabilita proteção CSRF para facilitar nossos testes
             .authorizeHttpRequests(auth -> auth
                 
-                // 1. ACESSO PÚBLICO: Arquivos de design e tela de login precisam ser livres para todos!
-                .requestMatchers("/login", "/error", "/css/**", "/js/**", "/img/**").permitAll()
+                // 1. ACESSO PÚBLICO: Arquivos, tela de login e a NOSSA LOGO liberados para todos!
+                .requestMatchers("/login", "/error", "/css/**", "/js/**", "/img/**", "/empresa/logo").permitAll()
                 
                 // 2. ACESSO DO TÉCNICO: A regra específica VEM ANTES da regra geral
                 .requestMatchers("/ordens/tecnico/**", "/ordens/concluir-app/**").hasAnyRole("TECNICO", "ADMIN")
@@ -42,8 +42,7 @@ public class SecurityConfig {
                             .anyMatch(role -> role.getAuthority().equals("ROLE_TECNICO"));
                     
                     if (isTecnico) {
-                        // Se for técnico, manda ele direto para o link do App!
-                        // IMPORTANTE: Ajuste esse link abaixo para a URL exata da tela inicial do técnico
+                        // Se for técnico, manda ele direto para a inteligência de redirecionamento!
                         response.sendRedirect("/ordens/tecnico/painel"); 
                     } else {
                         // Se for Admin, manda para o Dashboard Principal
