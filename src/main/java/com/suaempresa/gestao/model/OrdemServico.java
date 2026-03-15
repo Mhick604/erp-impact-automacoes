@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType; // <-- IMPORTAÇÃO NOVA AQUI
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +15,7 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 public class OrdemServico {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,16 +29,18 @@ public class OrdemServico {
     
 
     // Uma OS tem apenas UM Cliente (Mas um cliente pode ter várias OS)
-    @ManyToOne
+    // ADICIONADO: fetch = FetchType.EAGER para não dar erro na nuvem
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
     // Uma OS tem apenas UM Técnico responsável
-    @ManyToOne
+    // ADICIONADO: fetch = FetchType.EAGER
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tecnico_id")
     private Tecnico tecnico;
     
- // --- NOVOS CAMPOS (UPGRADE IMOBILIÁRIA) ---
+    // --- NOVOS CAMPOS (UPGRADE IMOBILIÁRIA) ---
     
     @Column(columnDefinition = "TEXT")
     private String problemasIdentificados; // TEXT permite textos gigantes
@@ -50,121 +54,124 @@ public class OrdemServico {
     private java.time.LocalDate dataFinalizacao;
 
     // --- A LISTA DE FOTOS ---
-    // O 'CascadeType.ALL' faz com que se você apagar a OS, as fotos apagam junto para não lotar o banco.
-    @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, orphanRemoval = true)
+    // ADICIONADO: fetch = FetchType.EAGER (O verdadeiro antídoto do Erro 500)
+    @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private java.util.List<FotosOS> fotos = new java.util.ArrayList<>();
-	public Long getId() {
-		return id;
-	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
 
-	public String getDescricao() {
-		return descricao;
-	}
+    // ==========================================
+    // GETTERS E SETTERS (Mantidos intocáveis)
+    // ==========================================
 
-	public void setDescricao(String descricao) {
-		this.descricao = descricao;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public Double getValor() {
-		return valor;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setValor(Double valor) {
-		this.valor = valor;
-	}
+    public String getDescricao() {
+        return descricao;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public Double getValor() {
+        return valor;
+    }
 
-	public LocalDate getDataAbertura() {
-		return dataAbertura;
-	}
+    public void setValor(Double valor) {
+        this.valor = valor;
+    }
 
-	public void setDataAbertura(LocalDate dataAbertura) {
-		this.dataAbertura = dataAbertura;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public Cliente getCliente() {
-		return cliente;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
-	}
+    public LocalDate getDataAbertura() {
+        return dataAbertura;
+    }
 
-	public Tecnico getTecnico() {
-		return tecnico;
-	}
+    public void setDataAbertura(LocalDate dataAbertura) {
+        this.dataAbertura = dataAbertura;
+    }
 
-	public void setTecnico(Tecnico tecnico) {
-		this.tecnico = tecnico;
-	}
+    public Cliente getCliente() {
+        return cliente;
+    }
 
-	public java.time.LocalDate getDataFinalizacao() {
-		return dataFinalizacao;
-	}
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
-	public void setDataFinalizacao(java.time.LocalDate dataFinalizacao) {
-		this.dataFinalizacao = dataFinalizacao;
-	}
+    public Tecnico getTecnico() {
+        return tecnico;
+    }
 
-	public String getCodigoImovel() {
-		return codigoImovel;
-	}
+    public void setTecnico(Tecnico tecnico) {
+        this.tecnico = tecnico;
+    }
 
-	public void setCodigoImovel(String codigoImovel) {
-		this.codigoImovel = codigoImovel;
-	}
+    public java.time.LocalDate getDataFinalizacao() {
+        return dataFinalizacao;
+    }
 
-	public String getTipo() {
-		return tipo;
-	}
+    public void setDataFinalizacao(java.time.LocalDate dataFinalizacao) {
+        this.dataFinalizacao = dataFinalizacao;
+    }
 
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
-	}
+    public String getCodigoImovel() {
+        return codigoImovel;
+    }
 
-	public String getProblemasIdentificados() {
-		return problemasIdentificados;
-	}
+    public void setCodigoImovel(String codigoImovel) {
+        this.codigoImovel = codigoImovel;
+    }
 
-	public void setProblemasIdentificados(String problemasIdentificados) {
-		this.problemasIdentificados = problemasIdentificados;
-	}
+    public String getTipo() {
+        return tipo;
+    }
 
-	public String getServicoRealizado() {
-		return servicoRealizado;
-	}
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
 
-	public void setServicoRealizado(String servicoRealizado) {
-		this.servicoRealizado = servicoRealizado;
-	}
+    public String getProblemasIdentificados() {
+        return problemasIdentificados;
+    }
 
-	public String getObservacoes() {
-		return observacoes;
-	}
+    public void setProblemasIdentificados(String problemasIdentificados) {
+        this.problemasIdentificados = problemasIdentificados;
+    }
 
-	public void setObservacoes(String observacoes) {
-		this.observacoes = observacoes;
-	}
+    public String getServicoRealizado() {
+        return servicoRealizado;
+    }
 
-	public java.util.List<FotosOS> getFotos() {
-		return fotos;
-	}
+    public void setServicoRealizado(String servicoRealizado) {
+        this.servicoRealizado = servicoRealizado;
+    }
 
-	public void setFotos(java.util.List<FotosOS> fotos) {
-		this.fotos = fotos;
-	}
+    public String getObservacoes() {
+        return observacoes;
+    }
 
-    
-    
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
+    }
+
+    public java.util.List<FotosOS> getFotos() {
+        return fotos;
+    }
+
+    public void setFotos(java.util.List<FotosOS> fotos) {
+        this.fotos = fotos;
+    }
 }
