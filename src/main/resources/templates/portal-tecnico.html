@@ -9,21 +9,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <style>
-        /* Reset e Fundo */
-        body { background-color: #f4f7f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding-bottom: 100px; }
+        body { background-color: #f4f7f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding-bottom: 120px; }
         a { text-decoration: none; }
         
-        /* 1. O Cabeçalho (Header) Curvado e Colorido */
         .app-header {
             background: linear-gradient(135deg, #0a4ea2 0%, #0d6efd 100%);
-            color: white;
-            padding: 30px 20px 70px 20px;
-            border-bottom-left-radius: 35px;
-            border-bottom-right-radius: 35px;
+            color: white; padding: 30px 20px 70px 20px;
+            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
             box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
         }
         
-        /* 2. O Cartão de Resumo (Sobrepondo o cabeçalho) */
         .status-card {
             background: white; border-radius: 20px; padding: 20px;
             margin: -45px 20px 25px 20px;
@@ -31,27 +26,28 @@
             position: relative; z-index: 10;
         }
 
-        /* 3. Botões de Acesso Rápido (Categorias) */
         .category-box {
             background: white; border-radius: 16px; padding: 15px 5px;
             text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
             height: 100%; border: 1px solid rgba(0,0,0,0.02);
-            transition: transform 0.2s;
         }
-        .category-box:active { transform: scale(0.95); background-color: #f8f9fa; }
-        .category-box i { font-size: 1.8rem; color: #0a4ea2; margin-bottom: 8px; display: block; }
-        .category-box span { font-size: 0.75rem; font-weight: 700; color: #495057; }
 
-        /* 4. O Design das Ordens de Serviço */
         .os-card { 
             border: none; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.04); 
             margin-bottom: 20px; overflow: hidden; background: white;
             border-left: 6px solid #ffc107;
         }
-        .os-card .card-header { background: transparent; border-bottom: 1px dashed #e9ecef; padding: 15px 20px; }
-        .btn-concluir { border-radius: 16px; padding: 14px; font-weight: bold; background-color: #198754; border: none; letter-spacing: 0.5px; }
 
-        /* 5. A Cereja do Bolo: Barra Inferior (Bottom Navigation) */
+        /* Estilo para a área de finalização */
+        .area-conclusao {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            display: none; /* Começa escondido */
+        }
+
+        .btn-concluir-trigger { border-radius: 16px; padding: 14px; font-weight: bold; }
+
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: white; box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
@@ -59,20 +55,16 @@
             padding: 10px 0 20px 0; z-index: 1000;
             border-top-left-radius: 25px; border-top-right-radius: 25px;
         }
-        .nav-item-app { display: flex; flex-direction: column; align-items: center; color: #adb5bd; font-size: 0.7rem; font-weight: bold; width: 20%; transition: color 0.3s;}
+        .nav-item-app { display: flex; flex-direction: column; align-items: center; color: #adb5bd; font-size: 0.7rem; font-weight: bold; width: 20%; }
         .nav-item-app.active { color: #0d6efd; }
-        .nav-item-app i { font-size: 1.4rem; margin-bottom: 2px; }
-
-        /* 6. O Botão Laranja Flutuante Gigante (FAB - Floating Action Button) */
-        .fab-wrapper { position: relative; top: -35px; }
+        
         .fab-button {
             background: linear-gradient(135deg, #fd7e14 0%, #e85d04 100%);
             color: white; width: 65px; height: 65px;
             border-radius: 50%; display: flex; justify-content: center; align-items: center;
             font-size: 1.8rem; box-shadow: 0 8px 20px rgba(232, 93, 4, 0.4);
-            border: 5px solid #f4f7f6; transition: transform 0.2s;
+            border: 5px solid #f4f7f6;
         }
-        .fab-button:active { transform: scale(0.92); color: white;}
     </style>
 </head>
 <body>
@@ -90,56 +82,25 @@
             <span class="d-block text-muted small fw-bold text-uppercase mb-1">Missões Pendentes</span>
             <h2 class="mb-0 fw-bold text-dark"><span th:text="${ordens != null ? ordens.size() : 0}">0</span> <small class="fs-6 text-muted fw-normal">serviços hoje</small></h2>
         </div>
-        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle" style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;">
+        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
             <i class="bi bi-rocket-takeoff-fill fs-3"></i>
         </div>
     </div>
 
     <div class="container px-3">
         
-        <h6 class="fw-bold text-muted mb-3 mt-1 ms-1 fs-6">Acesso Rápido</h6>
         <div class="row g-2 mb-4">
+            <div class="col-3"><div class="category-box"><i class="bi bi-box-seam text-primary fs-3"></i><br><span>Estoque</span></div></div>
+            <div class="col-3"><div class="category-box"><i class="bi bi-journal-text text-primary fs-3"></i><br><span>Manuais</span></div></div>
+            <div class="col-3"><div class="category-box"><i class="bi bi-chat-dots text-primary fs-3"></i><br><span>Suporte</span></div></div>
             <div class="col-3">
-                <a href="#" class="text-decoration-none">
-                    <div class="category-box">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Estoque</span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-3">
-                <a href="#" class="text-decoration-none">
-                    <div class="category-box">
-                        <i class="bi bi-journal-text"></i>
-                        <span>Manuais</span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-3">
-                <a href="#" class="text-decoration-none">
-                    <div class="category-box">
-                        <i class="bi bi-chat-dots"></i>
-                        <span>Suporte</span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-3">
-                <a href="#" class="text-decoration-none">
-                    <div class="category-box text-success">
-                        <i class="bi bi-whatsapp text-success"></i>
-                        <span class="text-success">Cliente</span>
-                    </div>
+                <a th:href="'https://wa.me/55' + ${empresa?.telefone}" class="category-box d-block">
+                    <i class="bi bi-whatsapp text-success fs-3"></i><br><span>Escritório</span>
                 </a>
             </div>
         </div>
 
         <h6 class="fw-bold text-muted mb-3 ms-1 fs-6">Minha Pauta</h6>
-
-        <div th:if="${#lists.isEmpty(ordens)}" class="text-center p-5 bg-white rounded-4 shadow-sm border border-light mb-4">
-            <i class="bi bi-emoji-sunglasses fs-1 text-success mb-3 d-block"></i>
-            <h5 class="text-dark fw-bold">Tudo limpo por aqui!</h5>
-            <p class="text-muted small mb-0">Você não tem serviços pendentes no momento. Pode tomar um café! ☕</p>
-        </div>
 
         <div th:each="os : ${ordens}" class="card os-card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -149,10 +110,10 @@
             <div class="card-body p-4 pt-3">
                 <h5 class="fw-bold text-dark mb-1"><i class="bi bi-building me-2 text-primary"></i><span th:text="${os.cliente?.nome ?: 'Sem Cliente'}"></span></h5>
                 
-                <a th:href="'https://www.google.com/maps/search/?api=1&query=' + ${os.cliente?.endereco ?: ''}" target="_blank" class="text-decoration-none">
-                    <p class="text-muted small mb-3 bg-light p-2 rounded-3 border border-secondary border-opacity-10">
+                <a th:href="'https://www.google.com/maps/dir/?api=1&destination=' + ${os.cliente?.endereco}" target="_blank" class="text-decoration-none">
+                    <p class="text-muted small mb-3 bg-light p-3 rounded-3 border border-secondary border-opacity-10">
                         <i class="bi bi-geo-alt-fill text-danger me-1"></i> <span th:text="${os.cliente?.endereco ?: 'Endereço não cadastrado'}"></span>
-                        <i class="bi bi-box-arrow-up-right float-end mt-1 text-primary"></i>
+                        <span class="badge bg-primary float-end mt-1">TRAÇAR ROTA</span>
                     </p>
                 </a>
 
@@ -161,40 +122,48 @@
                     <span class="text-dark small fw-medium" th:text="${os.descricao ?: 'Nenhum detalhe informado.'}"></span>
                 </div>
 
-                <a th:href="@{/ordens/concluir-app/{id}(id=${os.id})}" class="btn btn-success w-100 btn-concluir shadow-sm text-uppercase d-flex justify-content-center align-items-center" onclick="return confirm('Trabalho finalizado? O financeiro será notificado!');">
+                <div th:id="'formConcluir' + ${os.id}" class="area-conclusao mb-3">
+                    <form th:action="@{/ordens/salvar}" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="id" th:value="${os.id}">
+                        <input type="hidden" name="status" value="CONCLUIDA">
+                        
+                        <label class="form-label small fw-bold">O que foi realizado?</label>
+                        <textarea name="servicoRealizado" class="form-control mb-3 shadow-sm" rows="3" placeholder="Ex: Central configurada e testada..."></textarea>
+                        
+                        <label class="form-label small fw-bold">Foto do Serviço (Opcional)</label>
+                        <input type="file" name="arquivosFotos" class="form-control mb-3 shadow-sm" accept="image/*" capture="environment">
+                        
+                        <button type="submit" class="btn btn-success w-100 fw-bold py-3 rounded-4 shadow">
+                            FINALIZAR AGORA <i class="bi bi-send-fill ms-2"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <button type="button" class="btn btn-success w-100 btn-concluir-trigger shadow-sm text-uppercase d-flex justify-content-center align-items-center" 
+                        th:onclick="'abrirFinalizacao(' + ${os.id} + ')'">
                     <i class="bi bi-check2-circle fs-4 me-2"></i> CONCLUIR SERVIÇO
-                </a>
+                </button>
             </div>
         </div>
         
     </div>
 
     <div class="bottom-nav">
-        <a href="#" class="nav-item-app active">
-            <i class="bi bi-house-door-fill"></i>
-            <span>Início</span>
-        </a>
-        <a href="#" class="nav-item-app text-decoration-none">
-            <i class="bi bi-clock-history"></i>
-            <span>Histórico</span>
-        </a>
-        
-        <div class="fab-wrapper">
-            <a href="#" class="fab-button text-white text-decoration-none">
-                <i class="bi bi-qr-code-scan"></i>
-            </a>
-        </div>
-        
-        <a href="#" class="nav-item-app text-decoration-none">
-            <i class="bi bi-wallet2"></i>
-            <span>Ganhos</span>
-        </a>
-        <a th:href="@{/logout}" class="nav-item-app text-danger text-decoration-none">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Sair</span>
-        </a>
+        <a th:href="@{/ordens/tecnico/painel}" class="nav-item-app active"><i class="bi bi-house-door-fill fs-4"></i><span>Início</span></a>
+        <a href="#" class="nav-item-app"><i class="bi bi-clock-history fs-4"></i><span>Histórico</span></a>
+        <div class="fab-wrapper" style="position:relative; top:-35px;"><div class="fab-button shadow-lg"><i class="bi bi-qr-code-scan"></i></div></div>
+        <a href="#" class="nav-item-app"><i class="bi bi-wallet2 fs-4"></i><span>Ganhos</span></a>
+        <a th:href="@{/logout}" class="nav-item-app text-danger"><i class="bi bi-box-arrow-right fs-4"></i><span>Sair</span></a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function abrirFinalizacao(id) {
+            // Esconde o botão grande
+            event.target.closest('.btn-concluir-trigger').style.display = 'none';
+            // Mostra o formulário de relato
+            document.getElementById('formConcluir' + id).style.display = 'block';
+        }
+    </script>
 </body>
 </html>
