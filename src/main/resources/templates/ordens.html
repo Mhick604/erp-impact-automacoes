@@ -30,7 +30,7 @@
                                     <div class="row g-2 mb-2">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold small mb-1">Tipo</label>
-                                            <select name="tipo" class="form-select border-0 shadow-sm">
+                                            <select name="tipo" id="tipoOS" class="form-select border-0 shadow-sm" onchange="verificarOrcamento()">
                                                 <option value="DEFINITIVA">🔧 O.S. Definitiva</option>
                                                 <option value="ORCAMENTO">📝 Orçamento</option>
                                             </select>
@@ -52,7 +52,7 @@
                                     <h6 class="fw-bold text-danger mb-3"><i class="bi bi-tools me-2"></i>2. Diagnóstico</h6>
                                     <div class="mb-3">
                                         <label class="form-label fw-bold small mb-1">O que será feito?</label>
-                                        <textarea name="descricao" class="form-control border-0 shadow-sm" rows="2" placeholder="Resumo do serviço..." required></textarea>
+                                        <textarea name="descricao" id="txtDescricao" class="form-control border-0 shadow-sm" rows="2" placeholder="Resumo do serviço..." required></textarea>
                                     </div>
                                 </div>
 
@@ -210,6 +210,34 @@
         let textoAFormatado = document.getElementById('textoZap-' + id).value;
         let link = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(textoAFormatado);
         window.open(link, '_blank');
+    }
+
+    // 🔥 SCRIPT DO TEMPLATE DE ORÇAMENTO 🔥
+    function verificarOrcamento() {
+        const tipo = document.getElementById('tipoOS').value;
+        const descricao = document.getElementById('txtDescricao');
+        
+        // Pega a data de hoje formatada (ex: 15/03/2026)
+        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        
+        if (tipo === 'ORCAMENTO') {
+            // Aumenta o tamanho da caixa de texto para caber o orçamento
+            descricao.rows = 12;
+            
+            // O texto exato que a imobiliária pediu
+            const template = `Orçamento\nCód. 6359\n\nData: ${dataHoje}\n\n` +
+                `Endereço:  Rua Monsenhor Pedro Arbex 110 301\n\n` +
+                `Problemas identificados\n- Foi realizado os testes no banheiro da suite e notou-se que o vazamento vem da tubulação hidráulica da pia do banheiro. Podendo estar com alguma fissura na tubulação dentro da parede\n\n` +
+                `Serviço a ser realizado\n- Troca da conexão fissurada;\n- Assentamento da cerâmica \n\n` +
+                `Valor: R$ 350,00\n(Mão de obra e material)\n\n` +
+                `Obs.: Caso não haja no estoque do prédio a mesma cerâmica da parede do banheiro será comprada no mercado a mais semelhante possível, podendo variar a tonalidade.`;
+            
+            descricao.value = template;
+        } else {
+            // Se voltar para DEFINITIVA, limpa a caixa e diminui o tamanho
+            descricao.rows = 2;
+            descricao.value = '';
+        }
     }
     </script>
 </body>

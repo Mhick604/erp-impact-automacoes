@@ -90,6 +90,14 @@ public class DashboardController {
                 
         model.addAttribute("ultimasOs", osAtivas);
 
+        // ==========================================
+        // 3. O.S. FINALIZADAS PARA NOTIFICAR NO WHATSAPP
+        // ==========================================
+        List<OrdemServico> ordensConcluidas = todasAsOs.stream()
+                .filter(os -> os.getStatus() != null && os.getStatus().equalsIgnoreCase("CONCLUIDA"))
+                .collect(Collectors.toList());
+        model.addAttribute("ordensConcluidas", ordensConcluidas);
+
         return "index";
     }
 }
