@@ -20,16 +20,9 @@
         /* O MODO DE IMPRESSÃO (O SEGREDO FICA AQUI)  */
         /* ========================================== */
         @media print {
-            /* 1. Remove o fundo cinza e sombras */
             body { background-color: white !important; padding: 0 !important; }
-            
-            /* 2. A folha A4 toma 100% do espaço, mas ganha uma margem de segurança de 1.5cm para a impressora não cortar */
             .a4-page { box-shadow: none !important; padding: 1.5cm !important; max-width: 100% !important; border: none !important; margin: 0 !important;}
-            
-            /* 3. A MÁGICA FINAL: Esconde a URL, a data e as páginas geradas pelo Chrome */
             @page { margin: 0; }
-            
-            /* Garante que as cores de fundo (como a das caixas) apareçam no PDF */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
@@ -39,9 +32,12 @@
     <div class="a4-page">
         <div class="header-os d-flex justify-content-between align-items-center">
             <div>
-                <h2 class="text-primary fw-bold mb-1">
+                <img th:if="${empresa.logo != null}" th:src="@{/empresa/logo}" alt="Logo da Empresa" style="max-height: 85px; max-width: 250px; object-fit: contain;" class="mb-2">
+                
+                <h2 th:unless="${empresa.logo != null}" class="text-primary fw-bold mb-1">
                     <i class="bi bi-cpu"></i> <span th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'Impact Automações'}"></span>
                 </h2>
+                
                 <small class="text-muted fw-bold d-block" th:text="'CNPJ: ' + ${empresa.cnpj != null ? empresa.cnpj : 'Não informado'}"></small>
                 <small class="text-muted d-block" th:text="${empresa.telefone != null ? empresa.telefone : ''}"></small>
             </div>
@@ -56,29 +52,29 @@
             <div class="col-md-6">
                 <div class="info-box h-100">
                     <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-person-badge"></i> Dados do Cliente</h6>
-                    <div class="mb-1"><strong>Nome:</strong> <span th:text="${os.cliente.nome}"></span></div>
-                    <div class="mb-1"><strong>CPF/CNPJ:</strong> <span th:text="${os.cliente.cpfCnpj != null ? os.cliente.cpfCnpj : '---'}"></span></div>
-                    <div><strong>Telefone:</strong> <span th:text="${os.cliente.telefone}"></span></div>
+                    <div class="mb-1"><strong>Nome:</strong> <span th:text="${os.cliente?.nome ?: 'Cliente não informado'}"></span></div>
+                    <div class="mb-1"><strong>CPF/CNPJ:</strong> <span th:text="${os.cliente?.cpfCnpj ?: '---'}"></span></div>
+                    <div><strong>Telefone:</strong> <span th:text="${os.cliente?.telefone ?: '---'}"></span></div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="info-box h-100">
                     <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-tools"></i> Responsável Técnico</h6>
-                    <div class="mb-1"><strong>Técnico:</strong> <span th:text="${os.tecnico.nome}"></span></div>
-                    <div class="mb-1"><strong>Especialidade:</strong> <span th:text="${os.tecnico.especialidade}"></span></div>
-                    <div><strong>Status da O.S.:</strong> <span th:text="${os.status}" class="fw-bold text-success"></span></div>
+                    <div class="mb-1"><strong>Técnico:</strong> <span th:text="${os.tecnico?.nome ?: 'Técnico não designado'}"></span></div>
+                    <div class="mb-1"><strong>Especialidade:</strong> <span th:text="${os.tecnico?.especialidade ?: '---'}"></span></div>
+                    <div><strong>Status da O.S.:</strong> <span th:text="${os.status ?: 'PENDENTE'}" class="fw-bold text-success"></span></div>
                 </div>
             </div>
         </div>
 
         <div class="info-box mt-3">
             <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-card-text"></i> Descrição do Serviço / Diagnóstico</h6>
-            <p style="white-space: pre-line; min-height: 80px;" class="mb-0 text-dark" th:text="${os.descricao}"></p>
+            <p style="white-space: pre-line; min-height: 80px;" class="mb-0 text-dark" th:text="${os.descricao ?: 'Nenhuma descrição fornecida.'}"></p>
         </div>
 
         <div class="text-end mt-4 mb-5 p-3 bg-light rounded border border-success border-opacity-25">
             <h5 class="text-secondary d-inline me-3 mb-0">Valor Fechado:</h5>
-            <h3 class="text-success d-inline fw-bold mb-0" th:text="'R$ ' + ${#numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA')}"></h3>
+            <h3 class="text-success d-inline fw-bold mb-0" th:text="'R$ ' + ${os.valor != null ? #numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA') : '0,00'}"></h3>
         </div>
 
         <div class="row text-center mt-5 pt-5">
@@ -89,7 +85,7 @@
             </div>
             <div class="col-6">
                 <div class="signature-line"></div>
-                <small class="fw-bold text-dark text-uppercase" th:text="${os.cliente.nome}"></small><br>
+                <small class="fw-bold text-dark text-uppercase" th:text="${os.cliente?.nome ?: 'Cliente / Contratante'}"></small><br>
                 <small class="text-muted">Cliente / Contratante</small>
             </div>
         </div>
@@ -99,7 +95,7 @@
         window.onload = function() {
             setTimeout(function() {
                 window.print();
-            }, 800); // 800ms garante que o Bootstrap desenhou a tela 100% antes de gerar o PDF
+            }, 800); // 800ms garante que o Bootstrap e a Logo desenharam na tela 100% antes de gerar o PDF
         }
     </script>
 </body>

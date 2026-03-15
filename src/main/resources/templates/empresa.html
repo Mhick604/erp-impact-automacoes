@@ -1,72 +1,93 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Impact | Configurações da Empresa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-</head>
-<head>
+    
     <th:block th:replace="~{fragments :: estilos}"></th:block>
 </head>
 <body class="bg-light">
 
-    <div th:replace="~{fragments :: menuLateral('empresa')}"></div>
-<body class="bg-light">
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow border-0 p-4">
-                    
-                    <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
-                        <div class="bg-primary text-white rounded p-3 me-3">
-                            <i class="bi bi-building-gear fs-3"></i>
-                        </div>
-                        <div>
-                            <h4 class="mb-0">Dados da Empresa</h4>
-                            <small class="text-muted">Informações que aparecerão nos seus orçamentos e OS.</small>
+    <div class="d-flex">
+        <div th:replace="~{fragments :: menuLateral('empresa')}"></div>
+        
+        <div class="flex-grow-1 p-4">
+            <div class="container py-4">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card shadow border-0 p-4 rounded-4">
+                            
+                            <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                                <div class="bg-primary text-white rounded p-3 me-3 shadow-sm">
+                                    <i class="bi bi-building-gear fs-3"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-0 fw-bold">Dados da Empresa</h4>
+                                    <small class="text-muted">Informações e Logomarca que aparecerão nas OS.</small>
+                                </div>
+                            </div>
+
+                            <form th:action="@{/empresa/salvar}" method="POST" th:object="${empresa}" enctype="multipart/form-data">
+                                
+                                <input type="hidden" th:field="*{id}">
+
+                                <div class="row g-3">
+                                    
+                                    <div class="col-12 mb-2 text-center bg-light p-4 rounded-4 border border-dashed">
+                                        
+                                        <img th:if="${empresa.logo != null}" th:src="@{/empresa/logo}" class="img-thumbnail mb-3 shadow-sm" style="max-height: 120px; border-radius: 15px; border: 3px solid white;">
+                                        
+                                        <div th:unless="${empresa.logo != null}" class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                                            <i class="bi bi-image text-secondary fs-1"></i>
+                                        </div>
+
+                                        <div>
+                                            <label class="form-label small fw-bold text-primary"><i class="bi bi-upload me-1"></i> Logomarca da Empresa (PNG ou JPG)</label>
+                                            <input type="file" name="arquivoLogo" class="form-control form-control-sm mx-auto shadow-sm" accept="image/png, image/jpeg" style="max-width: 400px;">
+                                            <small class="text-muted d-block mt-2">Deixe em branco para manter a logo atual. Fundo transparente (PNG) fica melhor no PDF!</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12"><hr class="text-muted opacity-25"></div>
+
+                                    <div class="col-md-8">
+                                        <label class="form-label small fw-bold text-dark">Nome Fantasia</label>
+                                        <input type="text" th:field="*{nomeFantasia}" class="form-control shadow-sm" placeholder="Ex: Impact Automações" required>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold text-dark">CNPJ</label>
+                                        <input type="text" th:field="*{cnpj}" class="form-control shadow-sm" data-mascara="cpfCnpj" maxlength="18" placeholder="00.000.000/0001-00">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold text-dark">Telefone de Contato</label>
+                                        <input type="text" th:field="*{telefone}" class="form-control shadow-sm" data-mascara="telefone" maxlength="15" placeholder="(00) 00000-0000">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold text-dark">E-mail Profissional</label>
+                                        <input type="email" th:field="*{email}" class="form-control shadow-sm" placeholder="contato@impact.com">
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-dark">Endereço Completo</label>
+                                        <input type="text" th:field="*{endereco}" class="form-control shadow-sm" placeholder="Rua, Número, Bairro, Cidade - UF">
+                                    </div>
+                                    
+                                    <div class="col-12 mt-4 text-end">
+                                        <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold shadow">
+                                            <i class="bi bi-save me-2"></i> SALVAR CONFIGURAÇÕES
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
                         </div>
                     </div>
-
-                    <form th:action="@{/empresa/salvar}" method="POST" th:object="${empresa}">
-                        
-                        <input type="hidden" th:field="*{id}">
-
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <label class="form-label small fw-bold">Nome Fantasia</label>
-                                <input type="text" th:field="*{nomeFantasia}" class="form-control" placeholder="Ex: Impact Automações" required>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <label class="form-label small fw-bold">CNPJ</label>
-                                <input type="text" th:field="*{cnpj}" class="form-control" data-mascara="cpfCnpj" maxlength="18" placeholder="00.000.000/0001-00">
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Telefone de Contato</label>
-                                <input type="text" th:field="*{telefone}" class="form-control" data-mascara="telefone" maxlength="15" placeholder="(00) 00000-0000">
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">E-mail Profissional</label>
-                                <input type="email" th:field="*{email}" class="form-control" placeholder="contato@impact.com">
-                            </div>
-                            
-                            <div class="col-12">
-                                <label class="form-label small fw-bold">Endereço Completo</label>
-                                <input type="text" th:field="*{endereco}" class="form-control" placeholder="Rua, Número, Bairro, Cidade - UF">
-                            </div>
-                            
-                            <div class="col-12 mt-4 text-end">
-                                <button type="submit" class="btn btn-success px-4">
-                                    <i class="bi bi-check2-circle me-1"></i> Salvar Dados
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
                 </div>
             </div>
         </div>
@@ -78,18 +99,18 @@
         document.addEventListener("DOMContentLoaded", function() {
             const mascaras = {
                 telefone(value) {
-                    value = value.replace(/\D/g, ''); // Tira letras
-                    value = value.replace(/^(\d{2})(\d)/g, '($1) $2'); // DDD
-                    value = value.replace(/(\d)(\d{4})$/, '$1-$2'); // Hífen
+                    value = value.replace(/\D/g, ''); 
+                    value = value.replace(/^(\d{2})(\d)/g, '($1) $2'); 
+                    value = value.replace(/(\d)(\d{4})$/, '$1-$2'); 
                     return value;
                 },
                 cpfCnpj(value) {
                     value = value.replace(/\D/g, '');
-                    if (value.length <= 11) { // É CPF
+                    if (value.length <= 11) { 
                         value = value.replace(/(\d{3})(\d)/, '$1.$2');
                         value = value.replace(/(\d{3})(\d)/, '$1.$2');
                         value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-                    } else { // É CNPJ
+                    } else { 
                         value = value.replace(/^(\d{2})(\d)/, '$1.$2');
                         value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
                         value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
@@ -98,22 +119,21 @@
                     return value;
                 },
                 cep(value) {
-					value = value.replace(/\D/g, '');
-					                    value = value.replace(/^(\d{5})(\d)/, '$1-$2');
-					                    return value;
-					                }
-					            };
+                    value = value.replace(/\D/g, '');
+                    value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                    return value;
+                }
+            };
 
-					            // Aplica a máscara automaticamente
-					            document.querySelectorAll('input[data-mascara]').forEach(input => {
-					                input.addEventListener('input', (e) => {
-					                    const tipo = e.target.dataset.mascara;
-					                    if (mascaras[tipo]) {
-					                        e.target.value = mascaras[tipo](e.target.value);
-					                    }
-					                });
-					            });
-					        });
-					    </script>
-					</body>
-					</html>
+            document.querySelectorAll('input[data-mascara]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const tipo = e.target.dataset.mascara;
+                    if (mascaras[tipo]) {
+                        e.target.value = mascaras[tipo](e.target.value);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
