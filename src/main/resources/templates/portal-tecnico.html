@@ -123,9 +123,9 @@
                 </div>
 
                 <div th:id="'formConcluir' + ${os.id}" class="area-conclusao mb-3">
-                    <form th:action="@{/ordens/salvar}" method="POST" enctype="multipart/form-data">
+                    
+                    <form th:action="@{/ordens/tecnico/concluir}" method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="id" th:value="${os.id}">
-                        <input type="hidden" name="status" value="CONCLUIDA">
                         
                         <label class="form-label small fw-bold">O que foi realizado?</label>
                         <textarea name="servicoRealizado" class="form-control mb-3 shadow-sm" rows="3" placeholder="Ex: Central configurada e testada..."></textarea>
