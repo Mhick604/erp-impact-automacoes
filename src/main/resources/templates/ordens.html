@@ -190,7 +190,7 @@
                                 
                                 <div class="col-md-12">
                                     <label class="form-label small fw-bold">Descrição do Serviço</label>
-                                    <textarea name="descricao" class="form-control bg-light" rows="3" th:text="${os.descricao}"></textarea>
+                                    <textarea name="descricao" class="form-control bg-light" rows="10" th:text="${os.descricao}"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -212,29 +212,33 @@
         window.open(link, '_blank');
     }
 
-    // 🔥 SCRIPT DO TEMPLATE DE ORÇAMENTO 🔥
+    // Função que aplica o template de Orçamento com os campos exatos
     function verificarOrcamento() {
         const tipo = document.getElementById('tipoOS').value;
         const descricao = document.getElementById('txtDescricao');
         
-        // Pega a data de hoje formatada (ex: 15/03/2026)
+        // Pega a data atual no formato Brasileiro (Ex: 15/03/2026)
         const dataHoje = new Date().toLocaleDateString('pt-BR');
         
         if (tipo === 'ORCAMENTO') {
-            // Aumenta o tamanho da caixa de texto para caber o orçamento
-            descricao.rows = 12;
+            // Aumenta a caixa de texto para 18 linhas para caber tudo confortavelmente
+            descricao.rows = 18;
             
-            // O texto exato que a imobiliária pediu
-            const template = `Orçamento\nCód. 6359\n\nData: ${dataHoje}\n\n` +
+            // O Template com os textos e espaços exatos conforme seu exemplo
+            const template = `Orçamento\nCód. 6359\n\n` +
+                `Data: ${dataHoje}\n\n\n` +
                 `Endereço:  Rua Monsenhor Pedro Arbex 110 301\n\n` +
-                `Problemas identificados\n- Foi realizado os testes no banheiro da suite e notou-se que o vazamento vem da tubulação hidráulica da pia do banheiro. Podendo estar com alguma fissura na tubulação dentro da parede\n\n` +
-                `Serviço a ser realizado\n- Troca da conexão fissurada;\n- Assentamento da cerâmica \n\n` +
-                `Valor: R$ 350,00\n(Mão de obra e material)\n\n` +
-                `Obs.: Caso não haja no estoque do prédio a mesma cerâmica da parede do banheiro será comprada no mercado a mais semelhante possível, podendo variar a tonalidade.`;
+                `Problemas identificados:\n\n` +
+                `- Foi realizado os testes no banheiro da suite e notou-se que o vazamento vem da tubulação hidráulica da pia do banheiro. Podendo estar com alguma fissura na tubulação dentro da parede\n\n` +
+                `Serviço a ser realizado:\n\n` +
+                `- Troca da conexão fissurada;\n- Assentamento da cerâmica \n\n` +
+                `Valor: R$ 350,00\n (Mão de obra e material)\n\n\n` +
+                `Observação: \n` +
+                `- Caso não haja no estoque do prédio a mesma cerâmica da parede do banheiro será comprada no mercado a mais semelhante possível, podendo variar a tonalidade.`;
             
             descricao.value = template;
         } else {
-            // Se voltar para DEFINITIVA, limpa a caixa e diminui o tamanho
+            // Se o usuário voltar para "O.S. Definitiva", esvazia a caixa e diminui o tamanho
             descricao.rows = 2;
             descricao.value = '';
         }
