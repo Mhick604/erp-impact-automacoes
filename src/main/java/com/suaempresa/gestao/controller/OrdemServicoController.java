@@ -186,25 +186,34 @@ public class OrdemServicoController {
     @GetMapping("/tecnico/painel")
     public String painelAutomatico(java.security.Principal principal) {
         
-        // 1. Pega o login de quem acabou de entrar (ex: "junior") e deixa tudo minúsculo
-        String loginDoUsuario = principal.getName().toLowerCase(); 
+        // 1. Pega o login (ex: "junior") e tira os acentos
+        String loginDoUsuario = removerAcentos(principal.getName().toLowerCase()); 
 
-        // 2. Busca todos os técnicos cadastrados no sistema
+        // 2. Busca todos os técnicos
         List<com.suaempresa.gestao.model.Tecnico> todosOsTecnicos = tecnicoRepository.findAll();
         
-        // 3. Procura qual técnico tem o nome que combina com o login (ex: "Vanderlei Júnior" contém "junior")
+        // 3. Compara ignorando acentos e letras maiúsculas
         com.suaempresa.gestao.model.Tecnico tecnicoLogado = todosOsTecnicos.stream()
-            .filter(t -> t.getNome() != null && t.getNome().toLowerCase().contains(loginDoUsuario))
+            .filter(t -> {
+                if (t.getNome() == null) return false;
+                String nomeLimpo = removerAcentos(t.getNome().toLowerCase());
+                return nomeLimpo.contains(loginDoUsuario);
+            })
             .findFirst()
             .orElse(null);
 
-        // 4. Se achou o técnico, manda ele pro link correto dele (ex: /ordens/tecnico/1)
+        // 4. Se achou, vai pro app. Se não achou, volta pro LOGIN pra não dar erro 403!
         if (tecnicoLogado != null) {
             return "redirect:/ordens/tecnico/" + tecnicoLogado.getId();
         } else {
-            // Se o login for "carlos" mas não existir nenhum técnico Carlos, volta pro início
-            return "redirect:/?erro=tecnico-nao-encontrado";
+            return "redirect:/login?erro=tecnico-nao-encontrado";
         }
+    }
+
+    // 🧽 FUNÇÃO MÁGICA: Tira acentos de qualquer palavra (Ex: Júnior -> Junior)
+    private String removerAcentos(String texto) {
+        return java.text.Normalizer.normalize(texto, java.text.Normalizer.Form.NFD)
+                .replaceAll("[^\\p{ASCII}]", "");
     }
 
     // 2. O botão verde gigante do App (Conclui e dispara o financeiro)
