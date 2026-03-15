@@ -17,28 +17,44 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desabilita proteção CSRF (Útil para testes agora)
+            .csrf(csrf -> csrf.disable()) // Desabilita proteção CSRF para facilitar nossos testes
             .authorizeHttpRequests(auth -> auth
-            	    // 1. ACESSO PÚBLICO: Qualquer um (mesmo sem logar) vê isso
-            		.requestMatchers("/","/login", "/error", "/css/**", "/js/**", "/img/", "/clientes/**", "/empresa/**", "/tecnicos/**", "/ordens/**", "/financeiro/**", "/usuarios/**").hasRole("ADMIN")
-            	    
-            	    // 2. ACESSO DO TÉCNICO: O técnico só pode entrar no portal dele e concluir serviços
-            	    .requestMatchers("/ordens/tecnico/**", "/ordens/concluir-app/**").hasAnyRole("TECNICO", "ADMIN")
-            	    
-            	    // 3. ACESSO DO ADMINISTRADOR: Todo o resto (Financeiro, Clientes, Dashboard) é só pro ADM
-            	    .requestMatchers("/", "/clientes/**", "/empresa/**", "/tecnicos/**", "/ordens/**", "/financeiro/**").hasRole("ADMIN")
-            	    
-            	    // Qualquer outra rota não mapeada exige login
-            	    .anyRequest().authenticated()
-            	)
+                
+                // 1. ACESSO PÚBLICO: Arquivos de design e tela de login precisam ser livres para todos!
+                .requestMatchers("/login", "/error", "/css/**", "/js/**", "/img/**").permitAll()
+                
+                // 2. ACESSO DO TÉCNICO: A regra específica VEM ANTES da regra geral
+                .requestMatchers("/ordens/tecnico/**", "/ordens/concluir-app/**").hasAnyRole("TECNICO", "ADMIN")
+                
+                // 3. ACESSO DO ADMINISTRADOR: Todo o resto do sistema
+                .requestMatchers("/", "/clientes/**", "/empresa/**", "/tecnicos/**", "/ordens/**", "/financeiro/**", "/usuarios/**").hasRole("ADMIN")
+                
+                // 4. Qualquer outra rota exige login
+                .anyRequest().authenticated()
+            )
             .formLogin(form -> form
-                .loginPage("/login") // Diz ao Spring qual é a nossa tela HTML bonita
-                .defaultSuccessUrl("/", true) // Se a senha estiver certa, vai direto pro Dashboard (index.html)
+                .loginPage("/login")
+                
+                // O GUARDA DE TRÂNSITO: Redirecionamento Inteligente!
+                .successHandler((request, response, authentication) -> {
+                    // Verifica se a pessoa que acabou de logar tem o cargo de TÉCNICO
+                    boolean isTecnico = authentication.getAuthorities().stream()
+                            .anyMatch(role -> role.getAuthority().equals("ROLE_TECNICO"));
+                    
+                    if (isTecnico) {
+                        // Se for técnico, manda ele direto para o link do App!
+                        // IMPORTANTE: Ajuste esse link abaixo para a URL exata da tela inicial do técnico
+                        response.sendRedirect("/ordens/tecnico/painel"); 
+                    } else {
+                        // Se for Admin, manda para o Dashboard Principal
+                        response.sendRedirect("/");
+                    }
+                })
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout") // Mostra a mensagem verde quando sair
+                .logoutSuccessUrl("/login?logout") // Mostra a mensagem quando sair
                 .permitAll()
             );
 
