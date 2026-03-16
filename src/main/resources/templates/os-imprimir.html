@@ -45,8 +45,8 @@
                 <small class="text-muted d-block" th:text="${empresa.telefone != null ? empresa.telefone : ''}"></small>
             </div>
             <div class="text-end">
-                <h4 class="text-secondary mb-0">ORDEM DE SERVIÇO</h4>
-                <h4 class="fw-bold text-dark" th:text="'Nº #' + ${os.id}"></h4>
+                <h3 class="text-secondary mb-0">ORDEM DE SERVIÇO</h3>
+                <h1 class="fw-bold text-dark" th:text="'Nº #' + ${os.id}"></h1>
                 <span class="badge bg-light text-dark border"><i class="bi bi-calendar3 me-1"></i> Data: <span th:text="${#temporals.format(os.dataAbertura, 'dd/MM/yyyy')}"></span></span>
             </div>
         </div>
