@@ -8,18 +8,32 @@
     
     <style>
         /* ==========================================
-           CONFIGURAÇÕES DE IMPRESSÃO
+           CONFIGURAÇÕES DE IMPRESSÃO ESTRUTURADA
            ========================================== */
         @media print {
-            @page { size: A4; margin: 0; }
-            body { margin: 0 !important; padding: 0 !important; background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .page-container { box-shadow: none !important; margin: 0 !important; width: 100% !important; border-radius: 0 !important;}
+            /* Define tamanho A4 com 10mm de margem para o PDF não cortar as bordas! */
+            @page { size: A4; margin: 10mm; } 
+            
+            body { 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                background: white !important; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+            }
+            .page-container { 
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                width: 100% !important; 
+                border-radius: 0 !important;
+                min-height: auto !important;
+            }
             .no-print { display: none !important; }
         }
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #2c3338; /* Fundo cinza na tela */
+            background-color: #2c3338;
             color: #2b2b2b;
             padding: 40px 20px;
             display: flex;
@@ -27,209 +41,83 @@
             margin: 0;
         }
 
-        /* A FOLHA A4 */
+        /* A FOLHA A4 (Agora usando Flexbox para travar o rodapé) */
         .page-container {
             background: white;
             width: 210mm;
             min-height: 297mm;
             box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-            position: relative;
-            overflow: hidden;
+            margin: 0 auto;
             border-radius: 8px;
+            display: flex;
+            flex-direction: column; /* Transforma a folha num container flexível */
         }
 
         /* ==========================================
-           1. CABEÇALHO DARK PREMIUM (O Pulo do Gato)
+           1. CABEÇALHO DARK PREMIUM
            ========================================== */
         .header-dark {
-            background-color: #0b111a; /* Fundo super escuro para fundir com a sua logo */
+            background-color: #0b111a; 
             color: white;
             padding: 40px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 6px solid #00d2ff; /* Linha Ciano Tecnológica */
+            border-bottom: 6px solid #00d2ff;
         }
 
-        .logo-img {
-            max-height: 95px;
-            max-width: 250px;
-            object-fit: contain;
-        }
-
-        .os-title-block {
-            text-align: right;
-        }
-
-        .os-title-text {
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            color: #8fa3b5;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .os-number {
-            font-size: 48px;
-            font-weight: 900;
-            color: white;
-            line-height: 1;
-        }
-
-        .os-date {
-            display: inline-block;
-            margin-top: 12px;
-            background: rgba(0, 210, 255, 0.15);
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            color: #00d2ff;
-            padding: 6px 15px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
+        .logo-img { max-height: 95px; max-width: 250px; object-fit: contain; }
+        .os-title-block { text-align: right; }
+        .os-title-text { font-size: 13px; font-weight: 700; letter-spacing: 4px; color: #8fa3b5; text-transform: uppercase; margin-bottom: 5px; }
+        .os-number { font-size: 48px; font-weight: 900; color: white; line-height: 1; }
+        .os-date { display: inline-block; margin-top: 12px; background: rgba(0, 210, 255, 0.15); border: 1px solid rgba(0, 210, 255, 0.3); color: #00d2ff; padding: 6px 15px; border-radius: 30px; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
 
         /* ==========================================
            2. CORPO DO DOCUMENTO
            ========================================== */
         .content-area {
             padding: 40px 50px;
+            flex-grow: 1; /* O conteúdo empurra o rodapé lá pro final da folha! */
         }
 
-        /* INFO GRIDS (Cards Limpos) */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .info-box {
-            background: #f8f9fa;
-            border-left: 4px solid #00d2ff; /* Destaque Ciano */
-            padding: 20px 25px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .info-box h6 {
-            font-size: 12px;
-            font-weight: 800;
-            color: #0b111a;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 0;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 10px;
-        }
-
+        /* INFO GRIDS */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+        .info-box { background: #f8f9fa; border-left: 4px solid #00d2ff; padding: 20px 25px; border-radius: 0 8px 8px 0; }
+        .info-box h6 { font-size: 12px; font-weight: 800; color: #0b111a; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #e9ecef; padding-bottom: 10px; }
         .data-line { margin-bottom: 8px; font-size: 14px; color: #111; font-weight: 500;}
         .data-line strong { color: #888; font-size: 11px; text-transform: uppercase; display: inline-block; width: 90px; font-weight: 700;}
 
         /* SECÇÕES DE TEXTO */
-        .section-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: #0b111a;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .text-block {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #333;
-            background: #fdfdfd;
-            border: 1px solid #f0f0f0;
-            padding: 15px;
-            border-radius: 6px;
-            white-space: pre-line;
-            margin-bottom: 20px;
-        }
+        .section-title { font-size: 14px; font-weight: 800; color: #0b111a; border-bottom: 2px solid #e9ecef; padding-bottom: 8px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .text-block { font-size: 13px; line-height: 1.6; color: #333; background: #fdfdfd; border: 1px solid #f0f0f0; padding: 15px; border-radius: 6px; white-space: pre-line; margin-bottom: 20px; }
 
         /* ==========================================
            3. TABELAS (Materiais)
            ========================================== */
-        .modern-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-            font-size: 12px;
-        }
-
-        .modern-table th {
-            background: #0b111a;
-            color: white;
-            padding: 12px 15px;
-            text-align: left;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .modern-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e9ecef;
-            color: #222;
-            font-weight: 500;
-        }
-
+        .modern-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 12px; }
+        .modern-table th { background: #0b111a; color: white; padding: 12px 15px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .modern-table td { padding: 12px 15px; border-bottom: 1px solid #e9ecef; color: #222; font-weight: 500; }
         .modern-table tbody tr:nth-child(even) { background: #f8f9fa; }
         .text-center { text-align: center !important; }
 
         /* ==========================================
            4. TOTAL E ASSINATURAS
            ========================================== */
-        .total-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 20px;
-            margin-bottom: 50px;
-        }
-
-        .total-box {
-            background: #0b111a;
-            color: white;
-            padding: 20px 35px;
-            border-radius: 12px;
-            text-align: right;
-            min-width: 280px;
-            box-shadow: 0 10px 20px rgba(0, 210, 255, 0.15);
-        }
-
+        .total-container { display: flex; justify-content: flex-end; margin-top: 20px; margin-bottom: 50px; }
+        .total-box { background: #0b111a; color: white; padding: 20px 35px; border-radius: 12px; text-align: right; min-width: 280px; box-shadow: 0 10px 20px rgba(0, 210, 255, 0.15); }
         .total-box span { display: block; }
         .total-lbl { font-size: 11px; font-weight: 600; color: #8fa3b5; text-transform: uppercase; letter-spacing: 2px; }
         .total-val { font-size: 36px; font-weight: 900; color: #00d2ff; margin-top: 5px; }
 
-        .signatures {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            margin-top: 70px;
-            page-break-inside: avoid;
-        }
-
-        .sign-line {
-            border-top: 1px solid #aaa;
-            padding-top: 12px;
-            text-align: center;
-        }
-
+        .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 70px; page-break-inside: avoid; }
+        .sign-line { border-top: 1px solid #aaa; padding-top: 12px; text-align: center; }
         .sign-name { font-size: 14px; font-weight: 800; color: #0b111a; text-transform: uppercase;}
         .sign-role { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;}
 
         /* ==========================================
-           5. RODAPÉ FIXO
+           5. RODAPÉ 
            ========================================== */
         .footer-strip {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
             background: #f8f9fa;
             border-top: 1px solid #e9ecef;
             padding: 20px 50px;
@@ -238,6 +126,7 @@
             font-size: 10px;
             color: #888;
             font-weight: 600;
+            margin-top: auto; /* Garante que fique travado no fim da folha! */
         }
     </style>
 </head>
