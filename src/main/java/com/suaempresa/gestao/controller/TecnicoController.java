@@ -31,8 +31,22 @@ public class TecnicoController {
     }
 
     @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id) {
-        repository.deleteById(id);
+    public String excluir(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes attributes) {
+        try {
+            // 🔥 CORRIGIDO AQUI: Usando apenas "repository" para combinar com a sua linha 18
+            repository.deleteById(id);
+            attributes.addFlashAttribute("mensagemSucesso", "Técnico excluído com sucesso!");
+            
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Se o banco de dados chiar por causa de uma O.S. vinculada, ele cai aqui!
+            attributes.addFlashAttribute("mensagemErro", "Acesso Negado: Você não pode excluir este técnico porque ele já possui Ordens de Serviço no histórico da empresa.");
+            
+        } catch (Exception e) {
+            // Qualquer outro erro bizarro cai aqui
+            attributes.addFlashAttribute("mensagemErro", "Ocorreu um erro inesperado ao tentar excluir.");
+        }
+        
+        
         return "redirect:/tecnicos";
     }
 }
