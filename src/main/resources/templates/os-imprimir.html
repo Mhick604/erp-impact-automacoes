@@ -4,341 +4,361 @@
     <meta charset="UTF-8">
     <title th:text="'O.S. #' + ${os.id} + ' - ' + ${empresa.nomeFantasia ?: 'Impact'}"></title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
         /* ==========================================
-           CONFIGURAÇÕES GERAIS DE IMPRESSÃO
+           CONFIGURAÇÕES DE IMPRESSÃO
            ========================================== */
-        :root {
-            --impact-navy: #091e36; /* Azul Marinho Profundo (Premium) */
-            --impact-vibrant: #0d6efd; /* Azul Vibrante para detalhes */
-            --text-dark: #2c3e50;
-            --text-muted: #6c757d;
-            --bg-light: #f8f9fa;
-            --border-color: #dee2e6;
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { margin: 0 !important; padding: 0 !important; background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .page-container { box-shadow: none !important; margin: 0 !important; width: 100% !important; border-radius: 0 !important;}
+            .no-print { display: none !important; }
         }
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #525659; /* Fundo escuro fora da folha na tela */
-            color: var(--text-dark);
-            margin: 0;
+            background-color: #2c3338; /* Fundo cinza na tela */
+            color: #2b2b2b;
             padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            margin: 0;
         }
 
-        .a4-page {
+        /* A FOLHA A4 */
+        .page-container {
             background: white;
-            max-width: 210mm; /* Tamanho exato A4 */
+            width: 210mm;
             min-height: 297mm;
-            margin: 0 auto;
-            padding: 15mm;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
             position: relative;
-        }
-
-        @media print {
-            body { background-color: white !important; padding: 0 !important; }
-            .a4-page { box-shadow: none !important; border-radius: 0 !important; padding: 10mm !important; max-width: 100% !important; min-height: auto !important; }
-            @page { size: A4; margin: 10mm; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .no-print { display: none !important; }
+            overflow: hidden;
+            border-radius: 8px;
         }
 
         /* ==========================================
-           1. CABEÇALHO (Recriando a Logo Física)
+           1. CABEÇALHO DARK PREMIUM (O Pulo do Gato)
            ========================================== */
-        .header-premium {
+        .header-dark {
+            background-color: #0b111a; /* Fundo super escuro para fundir com a sua logo */
+            color: white;
+            padding: 40px 50px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-            padding-bottom: 20px;
-            border-bottom: 3px solid var(--impact-navy);
-            margin-bottom: 25px;
+            align-items: center;
+            border-bottom: 6px solid #00d2ff; /* Linha Ciano Tecnológica */
         }
 
-        /* O Visual da Logo Física da Foto */
-        .logo-fisica-replica {
-            display: flex;
-            align-items: center;
-            font-weight: 800; /* Extra Bold */
-            font-size: 32px;
-            color: #2b2b2b; /* Cor do metal escovado */
+        .logo-img {
+            max-height: 95px;
+            max-width: 250px;
+            object-fit: contain;
+        }
+
+        .os-title-block {
+            text-align: right;
+        }
+
+        .os-title-text {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #8fa3b5;
             text-transform: uppercase;
-            letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+
+        .os-number {
+            font-size: 48px;
+            font-weight: 900;
+            color: white;
             line-height: 1;
         }
-        
-        .logo-fisica-icon { color: var(--impact-vibrant); margin-right: 12px; font-size: 36px; }
-        .logo-subtext { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 2px; letter-spacing: 2px; }
 
-        .os-info-box { text-align: right; }
-        .os-info-box .os-title { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 5px; }
-        .os-info-box .os-number { font-size: 32px; font-weight: 800; color: var(--impact-navy); line-height: 1; }
-        .os-info-box .os-date { font-size: 12px; font-weight: 600; color: var(--impact-vibrant); margin-top: 5px; background: #e9ecef; padding: 4px 10px; border-radius: 4px; display: inline-block; }
-
-        /* ==========================================
-           2. SECÇÕES DE DADOS (Cards Premium)
-           ========================================== */
-        .premium-section {
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .premium-section-header {
-            background-color: var(--impact-navy);
-            color: white;
-            padding: 8px 15px;
-            font-weight: 600;
-            font-size: 11px;
+        .os-date {
+            display: inline-block;
+            margin-top: 12px;
+            background: rgba(0, 210, 255, 0.15);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            color: #00d2ff;
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
             letter-spacing: 1px;
+        }
+
+        /* ==========================================
+           2. CORPO DO DOCUMENTO
+           ========================================== */
+        .content-area {
+            padding: 40px 50px;
+        }
+
+        /* INFO GRIDS (Cards Limpos) */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #00d2ff; /* Destaque Ciano */
+            padding: 20px 25px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box h6 {
+            font-size: 12px;
+            font-weight: 800;
+            color: #0b111a;
             text-transform: uppercase;
-            display: flex;
-            align-items: center;
+            letter-spacing: 1px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
         }
 
-        .premium-section-header i { margin-right: 8px; font-size: 14px; opacity: 0.8; }
-        .premium-section-body { padding: 15px; font-size: 11px; }
+        .data-line { margin-bottom: 8px; font-size: 14px; color: #111; font-weight: 500;}
+        .data-line strong { color: #888; font-size: 11px; text-transform: uppercase; display: inline-block; width: 90px; font-weight: 700;}
 
-        /* Tabela de Dados Grid */
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .data-grid-full { grid-column: span 2; }
-        
-        .data-item { margin-bottom: 8px; }
-        .data-label { font-weight: 700; color: var(--text-muted); font-size: 9px; text-transform: uppercase; margin-bottom: 2px; }
-        .data-value { font-weight: 600; color: var(--text-dark); font-size: 12px; }
+        /* SECÇÕES DE TEXTO */
+        .section-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0b111a;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-        /* Blocos de Texto */
-        .text-block-premium {
-            font-size: 11px;
+        .text-block {
+            font-size: 13px;
+            line-height: 1.6;
             color: #333;
-            background: var(--bg-light);
-            padding: 12px;
-            border-radius: 4px;
-            border-left: 3px solid var(--impact-vibrant);
-            white-space: pre-line;
-            min-height: 60px;
-        }
-
-        /* ==========================================
-           3. TABELAS DE ITENS
-           ========================================== */
-        .premium-table-itens { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 0; }
-        .premium-table-itens thead { background-color: var(--bg-light); border-bottom: 2px solid var(--border-color); }
-        .premium-table-itens th { padding: 8px 10px; text-align: left; font-weight: 700; color: var(--text-muted); font-size: 9px; text-transform: uppercase; }
-        .premium-table-itens td { padding: 10px; border-bottom: 1px solid var(--border-color); font-weight: 500; }
-        .premium-table-itens tbody tr:last-child td { border-bottom: none; }
-        
-        .text-center { text-align: center !important; }
-        .text-right { text-align: right !important; }
-
-        /* ==========================================
-           4. SECÇÃO DE TOTAIS E ASSINATURAS
-           ========================================== */
-        .totals-wrapper { display: flex; justify-content: flex-end; margin-top: 10px; }
-        .os-total-box {
-            background-color: var(--bg-light);
-            border: 2px solid var(--impact-navy);
+            background: #fdfdfd;
+            border: 1px solid #f0f0f0;
+            padding: 15px;
             border-radius: 6px;
-            padding: 15px 25px;
-            text-align: right;
-            min-width: 250px;
+            white-space: pre-line;
+            margin-bottom: 20px;
         }
-        .os-total-box .total-label { font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
-        .os-total-box .total-value { font-size: 26px; font-weight: 800; color: var(--impact-navy); margin-top: 5px; }
 
-        .signature-area {
+        /* ==========================================
+           3. TABELAS (Materiais)
+           ========================================== */
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 12px;
+        }
+
+        .modern-table th {
+            background: #0b111a;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modern-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+            color: #222;
+            font-weight: 500;
+        }
+
+        .modern-table tbody tr:nth-child(even) { background: #f8f9fa; }
+        .text-center { text-align: center !important; }
+
+        /* ==========================================
+           4. TOTAL E ASSINATURAS
+           ========================================== */
+        .total-container {
             display: flex;
-            justify-content: space-between;
-            margin-top: 60px;
-            padding: 0 20px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            margin-bottom: 50px;
+        }
+
+        .total-box {
+            background: #0b111a;
+            color: white;
+            padding: 20px 35px;
+            border-radius: 12px;
+            text-align: right;
+            min-width: 280px;
+            box-shadow: 0 10px 20px rgba(0, 210, 255, 0.15);
+        }
+
+        .total-box span { display: block; }
+        .total-lbl { font-size: 11px; font-weight: 600; color: #8fa3b5; text-transform: uppercase; letter-spacing: 2px; }
+        .total-val { font-size: 36px; font-weight: 900; color: #00d2ff; margin-top: 5px; }
+
+        .signatures {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 70px;
             page-break-inside: avoid;
         }
-        .signature-box { width: 45%; text-align: center; }
-        .signature-line { border-top: 1px solid var(--text-dark); margin-bottom: 8px; }
-        .signature-label { font-weight: 700; color: var(--text-dark); font-size: 11px; text-transform: uppercase; }
-        .signature-sub { font-size: 9px; color: var(--text-muted); font-weight: 500; }
+
+        .sign-line {
+            border-top: 1px solid #aaa;
+            padding-top: 12px;
+            text-align: center;
+        }
+
+        .sign-name { font-size: 14px; font-weight: 800; color: #0b111a; text-transform: uppercase;}
+        .sign-role { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;}
 
         /* ==========================================
-           5. RODAPÉ DE PÁGINA
+           5. RODAPÉ FIXO
            ========================================== */
-        .page-footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 9px;
-            font-weight: 500;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-color);
-            padding-top: 15px;
+        .footer-strip {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #888;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-    <div class="a4-page">
+    <div class="page-container">
         
-        <div class="header-premium">
+        <div class="header-dark">
             <div>
-                <img th:if="${empresa.logo != null}" th:src="@{/empresa/logo}" alt="Logo da Empresa" style="max-height: 80px; max-width: 250px; object-fit: contain;">
-                
-                <div th:unless="${empresa.logo != null}">
-                    <div class="logo-fisica-replica">
-                        <span class="logo-fisica-icon"><i class="bi bi-cpu-fill"></i></span>
-                        <span th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'IMPACT'}"></span>
-                    </div>
-                    <div class="logo-subtext">TECNOLOGIA & AUTOMAÇÃO</div>
-                </div>
+                <img th:if="${empresa.logo != null}" th:src="@{/empresa/logo}" alt="Logo da Empresa" class="logo-img">
+                <h2 th:unless="${empresa.logo != null}" style="margin:0; font-weight: 900; letter-spacing: 2px;">
+                    <span style="color: #00d2ff;">IMPACT</span>
+                </h2>
             </div>
+            <div class="os-title-block">
+                <div class="os-title-text">Ordem de Serviço</div>
+                <div class="os-number" th:text="'#' + ${os.id}">#000</div>
+                <div class="os-date">DATA: <span th:text="${#temporals.format(os.dataAbertura, 'dd/MM/yyyy')}"></span></div>
+            </div>
+        </div>
+
+        <div class="content-area">
             
-            <div class="os-info-box">
-                <div class="os-title">ORDEM DE SERVIÇO</div>
-                <div class="os-number" th:text="'#' + ${os.id}">#0000</div>
-                <div class="os-date">
-                    <i class="bi bi-calendar3 me-1"></i> <span th:text="${#temporals.format(os.dataAbertura, 'dd/MM/yyyy')}">00/00/0000</span>
+            <div class="info-grid">
+                <div class="info-box">
+                    <h6>Dados do Cliente</h6>
+                    <div class="data-line"><strong>Nome:</strong> <span th:text="${os.cliente?.nome ?: 'Não informado'}"></span></div>
+                    <div class="data-line"><strong>CPF/CNPJ:</strong> <span th:text="${os.cliente?.cpfCnpj ?: '---'}"></span></div>
+                    <div class="data-line"><strong>Telefone:</strong> <span th:text="${os.cliente?.telefone ?: '---'}"></span></div>
+                    <div class="data-line" style="margin-top: 10px;"><strong>Endereço:</strong> <span th:text="${os.cliente?.endereco ?: '---'}"></span></div>
+                </div>
+
+                <div class="info-box">
+                    <h6>Detalhes Técnicos</h6>
+                    <div class="data-line"><strong>Técnico:</strong> <span th:text="${os.tecnico?.nome ?: 'Não designado'}"></span></div>
+                    <div class="data-line"><strong>Espec.:</strong> <span th:text="${os.tecnico?.especialidade ?: '---'}"></span></div>
+                    <div class="data-line"><strong>Tipo O.S.:</strong> <span th:text="${os.tipo ?: 'O.S. DEFINITIVA'}"></span></div>
+                    <div class="data-line" style="margin-top: 10px;">
+                        <strong>Status:</strong> 
+                        <span th:style="${os.status == 'CONCLUIDA' ? 'color: #198754; font-weight: 800;' : 'color: #dc3545; font-weight: 800;'}" 
+                              th:text="${os.status ?: 'PENDENTE'}"></span>
+                    </div>
                 </div>
             </div>
+
+            <div class="section-title">Relatório de Serviço</div>
+            
+            <div th:if="${os.descricao != null and os.descricao != ''}" class="text-block" th:text="${os.descricao}"></div>
+
+            <div th:if="${os.problemasIdentificados != null and os.problemasIdentificados != ''}">
+                <div style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 5px;">Problemas Identificados</div>
+                <div class="text-block" th:text="${os.problemasIdentificados}"></div>
+            </div>
+            <div th:if="${os.servicoRealizado != null and os.servicoRealizado != ''}">
+                <div style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 5px;">Serviço a ser Realizado</div>
+                <div class="text-block" th:text="${os.servicoRealizado}" style="border-left: 3px solid #198754;"></div>
+            </div>
+
+            <div th:if="${os.materiaisUtilizados != null and !os.materiaisUtilizados.isEmpty()}">
+                <div class="section-title" style="margin-top: 30px;">Materiais Aplicados</div>
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Código</th>
+                            <th style="width: 70%;">Descrição do Item / Material</th>
+                            <th class="text-center" style="width: 15%;">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="mu : ${os.materiaisUtilizados}">
+                            <td th:text="'ITM-' + ${mu.itemEstoque.id}"></td>
+                            <td th:text="${mu.itemEstoque.nome}"></td>
+                            <td class="text-center" style="font-weight: 800;" th:text="${mu.quantidade}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${os.observacoes != null and os.observacoes != ''}" style="margin-top: 30px;">
+                <div style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 5px;">Observações / Condições Gerais</div>
+                <div class="text-block" th:text="${os.observacoes}" style="border-left: 3px solid #ffc107;"></div>
+            </div>
+
+            <div class="total-container">
+                <div class="total-box">
+                    <span class="total-lbl">Valor Total Fechado</span>
+                    <span class="total-val" th:text="'R$ ' + ${os.valor != null ? #numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA') : '0,00'}">R$ 0,00</span>
+                </div>
+            </div>
+
+            <div class="signatures">
+                <div class="sign-line">
+                    <div class="sign-name" th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'IMPACT'}"></div>
+                    <div class="sign-role">Prestador do Serviço</div>
+                </div>
+                <div class="sign-line">
+                    <div class="sign-name" th:text="${os.cliente?.nome ?: 'CLIENTE'}"></div>
+                    <div class="sign-role">Cliente / Aceite</div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="premium-section">
-            <div class="premium-section-header"><i class="bi bi-person-bounding-box"></i> Detalhes do Cliente e Responsável Técnico</div>
-            <div class="premium-section-body data-grid">
-                
-                <div>
-                    <div class="data-item">
-                        <div class="data-label">Cliente / Contratante</div>
-                        <div class="data-value" th:text="${os.cliente?.nome ?: 'Não informado'}">Nome do Cliente</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">CPF / CNPJ</div>
-                        <div class="data-value" th:text="${os.cliente?.cpfCnpj ?: '---'}">000.000.000-00</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Telefone de Contato</div>
-                        <div class="data-value" th:text="${os.cliente?.telefone ?: '---'}">(00) 00000-0000</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Endereço do Imóvel / Serviço</div>
-                        <div class="data-value" th:text="${os.cliente?.endereco ?: '---'}">Endereço completo...</div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="data-item">
-                        <div class="data-label">Técnico Responsável</div>
-                        <div class="data-value text-primary" th:text="${os.tecnico?.nome ?: 'Não designado'}">Nome do Técnico</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Especialidade</div>
-                        <div class="data-value" th:text="${os.tecnico?.especialidade ?: '---'}">Elétrica / Automação</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Tipo de O.S.</div>
-                        <div class="data-value" th:text="${os.tipo ?: 'O.S. DEFINITIVA'}">DEFINITIVA</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Status Atual</div>
-                        <div class="data-value" th:style="${os.status == 'CONCLUIDA' ? 'color: #198754;' : 'color: #dc3545;'}" th:text="${os.status ?: 'PENDENTE'}">STATUS</div>
-                    </div>
-                </div>
+        <div class="footer-strip">
+            <div>
+                <span th:text="${empresa.nomeFantasia ?: 'Impact Automações'}"></span>
+                <span th:if="${empresa.cnpj != null and empresa.cnpj != ''}" th:text="' | CNPJ: ' + ${empresa.cnpj}"></span>
             </div>
-        </div>
-
-        <div class="premium-section">
-            <div class="premium-section-header"><i class="bi bi-clipboard2-pulse"></i> Relatório Técnico / Diagnóstico</div>
-            <div class="premium-section-body">
-                
-                <div th:if="${os.descricao != null and os.descricao != ''}">
-                    <div class="data-label mb-1">Descrição Geral do Serviço</div>
-                    <div class="text-block-premium" th:text="${os.descricao}">Resumo do serviço realizado...</div>
-                </div>
-
-                <div th:if="${os.problemasIdentificados != null and os.problemasIdentificados != ''}" class="mt-3">
-                    <div class="data-label mb-1">Problemas Identificados</div>
-                    <div class="text-block-premium" th:text="${os.problemasIdentificados}">Vazamento notado...</div>
-                </div>
-                
-                <div th:if="${os.servicoRealizado != null and os.servicoRealizado != ''}" class="mt-3">
-                    <div class="data-label mb-1">Serviço a ser Realizado</div>
-                    <div class="text-block-premium" style="border-left-color: #198754;" th:text="${os.servicoRealizado}">Troca de peças...</div>
-                </div>
+            <div>
+                <span th:text="${empresa.telefone ?: ''}"></span>
+                <span th:if="${empresa.email != null and empresa.email != ''}" th:text="' | ' + ${empresa.email}"></span>
             </div>
-        </div>
-
-        <div class="premium-section" th:if="${os.materiaisUtilizados != null and !os.materiaisUtilizados.isEmpty()}">
-            <div class="premium-section-header"><i class="bi bi-box-seam"></i> Relação de Materiais Aplicados</div>
-            <table class="premium-table-itens">
-                <thead>
-                    <tr>
-                        <th style="width: 15%;">CÓD. ITEM</th>
-                        <th style="width: 55%;">DESCRIÇÃO DO MATERIAL</th>
-                        <th class="text-center" style="width: 15%;">QTD.</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="mu : ${os.materiaisUtilizados}">
-                        <td th:text="'ITM-' + ${mu.itemEstoque.id}">ITM-00</td>
-                        <td>
-                            <span class="fw-bold" th:text="${mu.itemEstoque.nome}">Nome do Material</span>
-                            <span class="d-block text-muted" style="font-size: 9px;" th:text="${mu.itemEstoque.descricao}"></span>
-                        </td>
-                        <td class="text-center fw-bold" th:text="${mu.quantidade}">1</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="row">
-            <div class="col-md-7">
-                <div th:if="${os.observacoes != null and os.observacoes != ''}">
-                    <div class="data-label mb-1 mt-2">Observações / Condições</div>
-                    <div class="text-block-premium" style="min-height: auto; border-left-color: #ffc107;" th:text="${os.observacoes}"></div>
-                </div>
-            </div>
-            <div class="col-md-5">
-                <div class="totals-wrapper">
-                    <div class="os-total-box">
-                        <div class="total-label">Valor Total Fechado</div>
-                        <div class="total-value" th:text="'R$ ' + ${os.valor != null ? #numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA') : '0,00'}">R$ 0,00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="signature-area">
-            <div class="signature-box">
-                <div class="signature-line"></div>
-                <div class="signature-label" th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'IMPACT AUTOMAÇÕES'}">IMPACT</div>
-                <div class="signature-sub">Prestador do Serviço</div>
-            </div>
-            <div class="signature-box">
-                <div class="signature-line"></div>
-                <div class="signature-label" th:text="${os.cliente?.nome ?: 'ASSINATURA DO CLIENTE'}">CLIENTE</div>
-                <div class="signature-sub">Aceite / Contratante</div>
-            </div>
-        </div>
-
-        <div class="page-footer">
-            <span th:text="${empresa.nomeFantasia ?: 'Impact Automações'}"></span> 
-            <span th:if="${empresa.cnpj != null and empresa.cnpj != ''}" th:text="' | CNPJ: ' + ${empresa.cnpj}"></span>
-            <br>
-            <span th:text="${empresa.endereco ?: 'Endereço não cadastrado'}"></span>
-            <span th:if="${empresa.telefone != null and empresa.telefone != ''}" th:text="' | Tel: ' + ${empresa.telefone}"></span>
-            <br>
-            <span style="font-weight: 700; margin-top: 5px; display: inline-block;">Documento gerado eletronicamente.</span>
         </div>
 
     </div>
 
     <script>
-        // Ocultar a caixa preta do body e disparar impressão assim que a página renderizar
         window.onload = function() {
             setTimeout(function() {
                 window.print();
-            }, 800); // 800ms garante que as fontes do Google e a Logo carreguem 100%
+            }, 800); 
         }
     </script>
 </body>
