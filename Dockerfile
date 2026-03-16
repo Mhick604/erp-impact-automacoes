@@ -1,14 +1,14 @@
-FROM eclipse-temurin:17-jdk
-
+# ETAPA 1: Construção (Build) - Usa o JDK (Pesado, com compilador)
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
-
 COPY . .
-
-# Dando permissão e compilando dentro do Docker
 RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
+# ETAPA 2: Produção (Run) - Usa o JRE (Leve, apenas para rodar)
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+# Copia APENAS o arquivo .jar gerado na Etapa 1
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Comando para rodar o projeto usando curinga para evitar erro de nome de versão
-CMD sh -c 'java -jar target/*.jar'
+ENTRYPOINT ["java", "-jar", "app.jar"]
