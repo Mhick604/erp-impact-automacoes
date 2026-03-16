@@ -32,6 +32,8 @@
 
                             <form th:action="@{/empresa/salvar}" method="POST" th:object="${empresa}" enctype="multipart/form-data">
                                 
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}" />
+                                
                                 <input type="hidden" th:field="*{id}">
 
                                 <div class="row g-3">

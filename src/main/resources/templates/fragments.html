@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
@@ -48,6 +48,11 @@
         <a href="/ordens" class="sidebar-link" th:classappend="${paginaAtiva == 'ordens'} ? 'active' : ''">
             <i class="bi bi-clipboard-check"></i><span>Ordens de Serviço</span>
         </a>
+        
+        <a href="/estoque" class="sidebar-link" th:classappend="${paginaAtiva == 'estoque'} ? 'active' : ''">
+            <i class="bi bi-box-seam"></i><span>Estoque & Arsenal</span>
+        </a>
+        
         <a href="/financeiro" class="sidebar-link" th:classappend="${paginaAtiva == 'financeiro'} ? 'active' : ''">
             <i class="bi bi-currency-dollar"></i><span>Financeiro</span>
         </a>
