@@ -107,6 +107,45 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <div class="p-3 mb-4 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-3 shadow-sm">
+                                    <h6 class="fw-bold text-warning-emphasis mb-3"><i class="bi bi-box-seam me-2"></i>4. Materiais e Nota Fiscal</h6>
+                                    
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small text-dark mb-1">Nº Nota Fiscal (Opcional)</label>
+                                            <input type="text" name="numeroNotaFiscal" class="form-control bg-light border-0 shadow-sm" placeholder="Ex: NF-001234">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small text-dark mb-1">Anexar PDF / Foto da NFe</label>
+                                            <input type="file" name="arquivoNf" class="form-control bg-light border-0 shadow-sm text-muted" accept="application/pdf, image/*">
+                                        </div>
+                                    </div>
+
+                                    <hr class="border-warning border-opacity-50">
+
+                                    <label class="form-label fw-bold small text-dark mb-2">Materiais Utilizados (Abate do Estoque)</label>
+                                    
+                                    <div id="listaMateriaisContainer"></div>
+                                    
+                                    <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-bold mt-2 rounded-pill shadow-sm" onclick="adicionarCampoMaterial()">
+                                        <i class="bi bi-plus-circle me-1"></i> Adicionar Material
+                                    </button>
+
+                                    <div id="templateMaterial" style="display: none;">
+                                        <div class="d-flex mt-2 mb-2 align-items-center bg-white p-2 rounded shadow-sm border border-warning border-opacity-25">
+                                            <select name="itensIds" class="form-select border-0 bg-transparent" disabled required>
+                                                <option value="">Escolha um item...</option>
+                                                <option th:each="item : ${itensEstoque}" th:value="${item.id}" th:text="${item.nome} + ' (' + ${item.tipo == 'MATERIAL' ? 'Consumo' : 'Ferramenta'} + ' - Disp: ' + ${item.quantidade} + ')'"></option>
+                                            </select>
+                                            <input type="number" name="itensQtds" class="form-control border-0 bg-light text-center mx-2" style="width: 70px;" value="1" placeholder="Qtd" disabled required>
+                                            <button type="button" class="btn btn-sm btn-danger rounded-circle" onclick="this.parentElement.remove()">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow">
                                     <i class="bi bi-save me-2"></i> SALVAR REGISTRO
                                 </button>
@@ -150,10 +189,16 @@
 *Cliente:* ${os.cliente?.nome ?: 'Sem Cliente'}
 *Endereço:* ${os.cliente?.endereco ?: 'Não informado'}|"></textarea>
 
+                                                <th:block th:if="${os.arquivoNotaFiscal != null}">
+                                                    <a href="#" class="btn btn-sm btn-outline-warning border-0" title="Ver Nota Fiscal">
+                                                        <i class="bi bi-receipt"></i>
+                                                    </a>
+                                                </th:block>
+
                                                 <a th:href="@{/ordens/imprimir/{id}(id=${os.id})}" target="_blank" class="btn btn-sm btn-outline-secondary border-0"><i class="bi bi-printer"></i></a>
                                                 <button type="button" class="btn btn-sm btn-outline-success border-0" th:onclick="|enviarZap(${os.id})|"><i class="bi bi-whatsapp"></i></button>
                                                 <button type="button" class="btn btn-sm btn-outline-primary border-0" data-bs-toggle="modal" th:data-bs-target="|#modalEditOS${os.id}|"><i class="bi bi-pencil-square"></i></button>
-                                                <a th:href="@{/ordens/excluir/{id}(id=${os.id})}" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Excluir esta OS?');"><i class="bi bi-trash"></i></a>
+                                                <a th:href="@{/ordens/excluir/{id}(id=${os.id})}" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Excluir esta OS? O material NÃO retornará ao estoque automaticamente.');"><i class="bi bi-trash"></i></a>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -231,23 +276,19 @@
         window.open(link, '_blank');
     }
 
-    // 🔥 A MÁGICA DE ALTERNAR OS CAMPOS 🔥
     function alternarCampos() {
         const tipo = document.getElementById('tipoOS').value;
         const blocoDefinitiva = document.getElementById('blocoDefinitiva');
         const blocoOrcamento = document.getElementById('blocoOrcamento');
         
-        // Pega as caixas de texto do orçamento
         const txtProblemas = document.querySelector('textarea[name="problemasIdentificados"]');
         const txtServicos = document.querySelector('textarea[name="servicoRealizado"]');
         const txtObs = document.querySelector('textarea[name="observacoes"]');
         
         if (tipo === 'ORCAMENTO') {
-            // Esconde a O.S. normal e mostra os 3 campos separados de Orçamento
             blocoDefinitiva.style.display = 'none';
             blocoOrcamento.style.display = 'block';
             
-            // Preenche os campos com o seu texto padrão automaticamente!
             if (txtProblemas.value === "") {
                 txtProblemas.value = "- Foi realizado os testes no banheiro da suite e notou-se que o vazamento vem da tubulação hidráulica da pia do banheiro. Podendo estar com alguma fissura na tubulação dentro da parede";
             }
@@ -258,13 +299,26 @@
                 txtObs.value = "- Caso não haja no estoque do prédio a mesma cerâmica da parede do banheiro será comprada no mercado a mais semelhante possível, podendo variar a tonalidade.";
             }
         } else {
-            // Se for DEFINITIVA, volta ao normal
             blocoDefinitiva.style.display = 'block';
             blocoOrcamento.style.display = 'none';
         }
     }
     
-    // Roda a função assim que a página carrega para garantir que os campos certos estejam visíveis
+    // 🔥 O SCRIPT QUE ADICIONA OS MATERIAIS NA TELA 🔥
+    function adicionarCampoMaterial() {
+        const container = document.getElementById('listaMateriaisContainer');
+        const template = document.getElementById('templateMaterial').innerHTML;
+        
+        const novaDiv = document.createElement('div');
+        novaDiv.innerHTML = template;
+        
+        // Ativa os campos (Remove o 'disabled' do template invisível)
+        novaDiv.querySelector('select').removeAttribute('disabled');
+        novaDiv.querySelector('input').removeAttribute('disabled');
+        
+        container.appendChild(novaDiv);
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         alternarCampos();
     });

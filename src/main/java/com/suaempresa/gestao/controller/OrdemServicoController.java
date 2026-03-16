@@ -18,10 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.suaempresa.gestao.model.Empresa;
 import com.suaempresa.gestao.model.FotosOS;
+import com.suaempresa.gestao.model.ItemEstoque;
 import com.suaempresa.gestao.model.Lancamento;
+import com.suaempresa.gestao.model.MaterialUtilizado;
 import com.suaempresa.gestao.model.OrdemServico;
 import com.suaempresa.gestao.repository.ClienteRepository;
 import com.suaempresa.gestao.repository.EmpresaRepository;
+import com.suaempresa.gestao.repository.ItemEstoqueRepository;
 import com.suaempresa.gestao.repository.LancamentoRepository;
 import com.suaempresa.gestao.repository.OrdemServicoRepository;
 import com.suaempresa.gestao.repository.TecnicoRepository;
@@ -30,76 +33,119 @@ import com.suaempresa.gestao.repository.TecnicoRepository;
 @RequestMapping("/ordens")
 public class OrdemServicoController {
     
-    @Autowired 
-    private OrdemServicoRepository osRepository;
+    @Autowired private OrdemServicoRepository osRepository;
+    @Autowired private ClienteRepository clienteRepository;
+    @Autowired private TecnicoRepository tecnicoRepository;
+    @Autowired private EmpresaRepository empresaRepository;
+    @Autowired private LancamentoRepository lancamentoRepo;
     
-    @Autowired 
-    private ClienteRepository clienteRepository;
-    
-    @Autowired 
-    private TecnicoRepository tecnicoRepository;
-    
-    @Autowired 
-    private EmpresaRepository empresaRepository;
-    
-    @Autowired 
-    private LancamentoRepository lancamentoRepo;
+    // Novo repositório do Estoque
+    @Autowired private ItemEstoqueRepository itemEstoqueRepository;
     
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("ordens", osRepository.findAll());
         model.addAttribute("clientes", clienteRepository.findAll());
         model.addAttribute("tecnicos", tecnicoRepository.findAll());
+        // Envia os itens do estoque para aparecer no Dropdown da OS
+        model.addAttribute("itensEstoque", itemEstoqueRepository.findAll()); 
         return "ordens"; 
     }
 
     @PostMapping("/salvar")
     public String salvarOS(OrdemServico ordemServico, 
-                           @RequestParam(value = "arquivosFotos", required = false) MultipartFile[] arquivos) {
-                try {
-                    // Se a OS já tem um ID, significa que é uma EDIÇÃO
-                    if (ordemServico.getId() != null) {
-                        OrdemServico osAntiga = osRepository.findById(ordemServico.getId()).orElse(null);
-                        if (osAntiga != null) {
-                            ordemServico.setFotos(osAntiga.getFotos()); 
-                        }
-                    }
-
-                    if (arquivos != null && arquivos.length > 0) {
-                        for (MultipartFile arquivo : arquivos) {
-                            if (!arquivo.isEmpty()) {
-                                FotosOS novaFoto = new FotosOS();
-                                novaFoto.setDadosImagem(arquivo.getBytes());
-                                novaFoto.setTipoArquivo(arquivo.getContentType());
-                                novaFoto.setOrdemServico(ordemServico);
-                                ordemServico.getFotos().add(novaFoto);
-                            }
-                        }
+                           @RequestParam(value = "arquivosFotos", required = false) MultipartFile[] arquivos,
+                           @RequestParam(value = "arquivoNf", required = false) MultipartFile arquivoNf,
+                           @RequestParam(value = "itensIds", required = false) List<Long> itensIds,
+                           @RequestParam(value = "itensQtds", required = false) List<Integer> itensQtds) {
+        try {
+            // 1. EDIÇÃO E REPOSIÇÃO DE ESTOQUE
+            if (ordemServico.getId() != null) {
+                OrdemServico osAntiga = osRepository.findById(ordemServico.getId()).orElse(null);
+                if (osAntiga != null) {
+                    ordemServico.setFotos(osAntiga.getFotos()); 
+                    
+                    // Mantém arquivo da NFe antiga se não enviou um novo
+                    if (arquivoNf == null || arquivoNf.isEmpty()) {
+                        ordemServico.setArquivoNotaFiscal(osAntiga.getArquivoNotaFiscal());
+                        ordemServico.setTipoArquivoNotaFiscal(osAntiga.getTipoArquivoNotaFiscal());
                     }
                     
-                    osRepository.save(ordemServico);
-                    
-                    // GATILHO FINANCEIRO
-                    if ("CONCLUIDA".equals(ordemServico.getStatus())) {
-                        String identificador = "O.S. #" + ordemServico.getId();
-                        List<Lancamento> todosLancamentos = lancamentoRepo.findAll();
-                        boolean jaFoiCobrado = todosLancamentos.stream()
-                                .anyMatch(l -> l.getDescricao() != null && l.getDescricao().contains(identificador));
-                        
-                        if (!jaFoiCobrado) {
-                            Lancamento novaReceita = new Lancamento();
-                            String nomeCliente = (ordemServico.getCliente() != null) ? ordemServico.getCliente().getNome() : "Cliente não informado";
-                            novaReceita.setDescricao("Receita " + identificador + " - " + nomeCliente);
-                            novaReceita.setValor(ordemServico.getValor());
-                            novaReceita.setTipo("RECEITA");
-                            novaReceita.setStatus("PENDENTE");
-                            novaReceita.setData(LocalDate.now());
-                            lancamentoRepo.save(novaReceita);
+                    // Devolve o material para o estoque (limpa a OS) para não descontar em dobro
+                    if (osAntiga.getMateriaisUtilizados() != null) {
+                        for (MaterialUtilizado mu : osAntiga.getMateriaisUtilizados()) {
+                            ItemEstoque item = mu.getItemEstoque();
+                            item.setQuantidade(item.getQuantidade() + mu.getQuantidade());
+                            itemEstoqueRepository.save(item);
                         }
                     }
-                } catch (Exception e) {
-                    System.out.println("Erro ao salvar a OS: " + e.getMessage());
                 }
+            }
+
+            // 2. PROCESSAR NOVA NOTA FISCAL (NFe)
+            if (arquivoNf != null && !arquivoNf.isEmpty()) {
+                ordemServico.setArquivoNotaFiscal(arquivoNf.getBytes());
+                ordemServico.setTipoArquivoNotaFiscal(arquivoNf.getContentType());
+            }
+
+            // 3. FOTOS DO SERVIÇO
+            if (arquivos != null && arquivos.length > 0) {
+                for (MultipartFile arquivo : arquivos) {
+                    if (!arquivo.isEmpty()) {
+                        FotosOS novaFoto = new FotosOS();
+                        novaFoto.setDadosImagem(arquivo.getBytes());
+                        novaFoto.setTipoArquivo(arquivo.getContentType());
+                        novaFoto.setOrdemServico(ordemServico);
+                        ordemServico.getFotos().add(novaFoto);
+                    }
+                }
+            }
+            
+            // 4. ABATER ESTOQUE COM OS NOVOS MATERIAIS
+            if (itensIds != null && itensQtds != null) {
+                for (int i = 0; i < itensIds.size(); i++) {
+                    Long itemId = itensIds.get(i);
+                    Integer qtd = itensQtds.get(i);
+
+                    ItemEstoque item = itemEstoqueRepository.findById(itemId).orElse(null);
+                    if (item != null && qtd != null && qtd > 0) {
+                        MaterialUtilizado mu = new MaterialUtilizado();
+                        mu.setOrdemServico(ordemServico);
+                        mu.setItemEstoque(item);
+                        mu.setQuantidade(qtd);
+                        
+                        ordemServico.getMateriaisUtilizados().add(mu);
+                        
+                        // O abate matemático no estoque!
+                        item.setQuantidade(item.getQuantidade() - qtd);
+                        itemEstoqueRepository.save(item);
+                    }
+                }
+            }
+            
+            osRepository.save(ordemServico);
+            
+            // 5. GATILHO FINANCEIRO
+            if ("CONCLUIDA".equals(ordemServico.getStatus())) {
+                String identificador = "O.S. #" + ordemServico.getId();
+                List<Lancamento> todosLancamentos = lancamentoRepo.findAll();
+                boolean jaFoiCobrado = todosLancamentos.stream()
+                        .anyMatch(l -> l.getDescricao() != null && l.getDescricao().contains(identificador));
+                
+                if (!jaFoiCobrado) {
+                    Lancamento novaReceita = new Lancamento();
+                    String nomeCliente = (ordemServico.getCliente() != null) ? ordemServico.getCliente().getNome() : "Cliente não informado";
+                    novaReceita.setDescricao("Receita " + identificador + " - " + nomeCliente);
+                    novaReceita.setValor(ordemServico.getValor());
+                    novaReceita.setTipo("RECEITA");
+                    novaReceita.setStatus("PENDENTE");
+                    novaReceita.setData(LocalDate.now());
+                    lancamentoRepo.save(novaReceita);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao salvar a OS: " + e.getMessage());
+        }
         return "redirect:/ordens";
     }
 
@@ -136,9 +182,6 @@ public class OrdemServicoController {
         return ResponseEntity.notFound().build();
     }
     
-    // ==========================================
-    // 📱 1. A TELA DO APP 
-    // ==========================================
     @GetMapping("/tecnico/{tecnicoId}")
     public String portalTecnico(@PathVariable Long tecnicoId, Model model) {
         com.suaempresa.gestao.model.Tecnico tecnico = tecnicoRepository.findById(tecnicoId).orElse(null);
@@ -150,16 +193,11 @@ public class OrdemServicoController {
 
         model.addAttribute("ordens", osDoTecnico);
         model.addAttribute("tecnico", tecnico);
-        
-        // Pega a empresa para o botão de WhatsApp do Escritório funcionar no App
         model.addAttribute("empresa", empresaRepository.findAll().stream().findFirst().orElse(new Empresa()));
 
         return "portal-tecnico"; 
     }
 
-    // ==========================================
-    // 🚦 2. ROTA INTELIGENTE: DESCOBRE O ID DO TÉCNICO LOGADO
-    // ==========================================
     @GetMapping("/tecnico/painel")
     public String painelAutomatico(java.security.Principal principal) {
         String loginDoUsuario = removerAcentos(principal.getName().toLowerCase()); 
@@ -186,9 +224,6 @@ public class OrdemServicoController {
                 .replaceAll("[^\\p{ASCII}]", "");
     }
 
-    // ==========================================
-    // ✅ 3. O BOTÃO ANTIGO DO APP (MANTIDO PARA EVITAR QUEBRAS)
-    // ==========================================
     @GetMapping("/concluir-app/{id}")
     public String concluirPeloApp(@PathVariable Long id) {
         OrdemServico os = osRepository.findById(id).orElse(null);
@@ -217,9 +252,6 @@ public class OrdemServicoController {
         return "redirect:/";
     }
 
-    // ==========================================
-    // 📸 4. A NOVA ROTA VIP DO APP (COM FOTO E RELATO)
-    // ==========================================
     @PostMapping("/tecnico/concluir")
     public String concluirPeloAppForm(@RequestParam("id") Long id, 
                                       @RequestParam(value = "servicoRealizado", required = false) String servicoRealizado,
@@ -229,13 +261,11 @@ public class OrdemServicoController {
         if(os != null) {
             os.setStatus("CONCLUIDA");
             
-            // Salva o texto que o técnico digitou no celular
             if(servicoRealizado != null && !servicoRealizado.isEmpty()) {
                 os.setServicoRealizado(servicoRealizado);
             }
             
             try {
-                // Salva a foto do serviço (Câmera do celular)
                 if (arquivos != null && arquivos.length > 0) {
                     for (MultipartFile arquivo : arquivos) {
                         if (!arquivo.isEmpty()) {
@@ -251,7 +281,6 @@ public class OrdemServicoController {
                 System.out.println("Erro ao anexar foto do técnico: " + e.getMessage());
             }
             
-            // Gatilho Financeiro
             String identificador = "O.S. #" + os.getId();
             List<Lancamento> todosLancamentos = lancamentoRepo.findAll();
             boolean jaFoiCobrado = todosLancamentos.stream()
@@ -270,7 +299,6 @@ public class OrdemServicoController {
             
             osRepository.save(os);
             
-            // O TÉCNICO VOLTA PARA A TELA DELE!
             return "redirect:/ordens/tecnico/painel";
         }
         return "redirect:/";
