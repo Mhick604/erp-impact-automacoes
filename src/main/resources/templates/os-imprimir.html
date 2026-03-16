@@ -1,104 +1,344 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Impact Automações | Ordem de Serviço</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title th:text="'O.S. #' + ${os.id} + ' - ' + ${empresa.nomeFantasia ?: 'Impact'}"></title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
     <style>
-		/* Estilo da tela (Fundo cinza, folha branca no meio) */
-		    body { background-color: #f0f0f0; padding: 20px; font-family: Arial, sans-serif; }
-		    .a4-page {
-		        background: white; max-width: 800px; margin: 0 auto;
-		        padding: 40px; box-shadow: 0 0 15px rgba(0,0,0,0.1);
-		        
-		        /* 🔥 A ALTERAÇÃO ESTÁ AQUI: BORDAS LEVEMENTE ARREDONDADAS 🔥 */
-		        border-radius: 12px; /* Adicione esta linha */
-		    }
-		    .header-os { border-bottom: 2px solid #0d6efd; padding-bottom: 20px; margin-bottom: 30px; }
-		    .info-box { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin-bottom: 20px; }
-		    .signature-line { border-top: 1px solid #000; width: 80%; margin: 60px auto 10px auto; }
-        
-        /* ========================================== */
-        /* O MODO DE IMPRESSÃO (O SEGREDO FICA AQUI)  */
-        /* ========================================== */
+        /* ==========================================
+           CONFIGURAÇÕES GERAIS DE IMPRESSÃO
+           ========================================== */
+        :root {
+            --impact-navy: #091e36; /* Azul Marinho Profundo (Premium) */
+            --impact-vibrant: #0d6efd; /* Azul Vibrante para detalhes */
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+            --bg-light: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #525659; /* Fundo escuro fora da folha na tela */
+            color: var(--text-dark);
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .a4-page {
+            background: white;
+            max-width: 210mm; /* Tamanho exato A4 */
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 15mm;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            position: relative;
+        }
+
         @media print {
             body { background-color: white !important; padding: 0 !important; }
-            .a4-page { box-shadow: none !important; padding: 1.5cm !important; max-width: 100% !important; border: none !important; margin: 0 !important;}
-            @page { margin: 0; }
+            .a4-page { box-shadow: none !important; border-radius: 0 !important; padding: 10mm !important; max-width: 100% !important; min-height: auto !important; }
+            @page { size: A4; margin: 10mm; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .no-print { display: none !important; }
+        }
+
+        /* ==========================================
+           1. CABEÇALHO (Recriando a Logo Física)
+           ========================================== */
+        .header-premium {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--impact-navy);
+            margin-bottom: 25px;
+        }
+
+        /* O Visual da Logo Física da Foto */
+        .logo-fisica-replica {
+            display: flex;
+            align-items: center;
+            font-weight: 800; /* Extra Bold */
+            font-size: 32px;
+            color: #2b2b2b; /* Cor do metal escovado */
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+        
+        .logo-fisica-icon { color: var(--impact-vibrant); margin-right: 12px; font-size: 36px; }
+        .logo-subtext { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 2px; letter-spacing: 2px; }
+
+        .os-info-box { text-align: right; }
+        .os-info-box .os-title { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 5px; }
+        .os-info-box .os-number { font-size: 32px; font-weight: 800; color: var(--impact-navy); line-height: 1; }
+        .os-info-box .os-date { font-size: 12px; font-weight: 600; color: var(--impact-vibrant); margin-top: 5px; background: #e9ecef; padding: 4px 10px; border-radius: 4px; display: inline-block; }
+
+        /* ==========================================
+           2. SECÇÕES DE DADOS (Cards Premium)
+           ========================================== */
+        .premium-section {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .premium-section-header {
+            background-color: var(--impact-navy);
+            color: white;
+            padding: 8px 15px;
+            font-weight: 600;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+
+        .premium-section-header i { margin-right: 8px; font-size: 14px; opacity: 0.8; }
+        .premium-section-body { padding: 15px; font-size: 11px; }
+
+        /* Tabela de Dados Grid */
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .data-grid-full { grid-column: span 2; }
+        
+        .data-item { margin-bottom: 8px; }
+        .data-label { font-weight: 700; color: var(--text-muted); font-size: 9px; text-transform: uppercase; margin-bottom: 2px; }
+        .data-value { font-weight: 600; color: var(--text-dark); font-size: 12px; }
+
+        /* Blocos de Texto */
+        .text-block-premium {
+            font-size: 11px;
+            color: #333;
+            background: var(--bg-light);
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 3px solid var(--impact-vibrant);
+            white-space: pre-line;
+            min-height: 60px;
+        }
+
+        /* ==========================================
+           3. TABELAS DE ITENS
+           ========================================== */
+        .premium-table-itens { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 0; }
+        .premium-table-itens thead { background-color: var(--bg-light); border-bottom: 2px solid var(--border-color); }
+        .premium-table-itens th { padding: 8px 10px; text-align: left; font-weight: 700; color: var(--text-muted); font-size: 9px; text-transform: uppercase; }
+        .premium-table-itens td { padding: 10px; border-bottom: 1px solid var(--border-color); font-weight: 500; }
+        .premium-table-itens tbody tr:last-child td { border-bottom: none; }
+        
+        .text-center { text-align: center !important; }
+        .text-right { text-align: right !important; }
+
+        /* ==========================================
+           4. SECÇÃO DE TOTAIS E ASSINATURAS
+           ========================================== */
+        .totals-wrapper { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .os-total-box {
+            background-color: var(--bg-light);
+            border: 2px solid var(--impact-navy);
+            border-radius: 6px;
+            padding: 15px 25px;
+            text-align: right;
+            min-width: 250px;
+        }
+        .os-total-box .total-label { font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
+        .os-total-box .total-value { font-size: 26px; font-weight: 800; color: var(--impact-navy); margin-top: 5px; }
+
+        .signature-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding: 0 20px;
+            page-break-inside: avoid;
+        }
+        .signature-box { width: 45%; text-align: center; }
+        .signature-line { border-top: 1px solid var(--text-dark); margin-bottom: 8px; }
+        .signature-label { font-weight: 700; color: var(--text-dark); font-size: 11px; text-transform: uppercase; }
+        .signature-sub { font-size: 9px; color: var(--text-muted); font-weight: 500; }
+
+        /* ==========================================
+           5. RODAPÉ DE PÁGINA
+           ========================================== */
+        .page-footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 9px;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
         }
     </style>
 </head>
 <body>
 
     <div class="a4-page">
-        <div class="header-os d-flex justify-content-between align-items-center">
+        
+        <div class="header-premium">
             <div>
-                <img th:if="${empresa.logo != null}" th:src="@{/empresa/logo}" alt="Logo da Empresa" style="max-height: 85px; max-width: 250px; object-fit: contain;" class="mb-2">
+                <img th:if="${empresa.logo != null}" th:src="@{/empresa/logo}" alt="Logo da Empresa" style="max-height: 80px; max-width: 250px; object-fit: contain;">
                 
-                <h2 th:unless="${empresa.logo != null}" class="text-primary fw-bold mb-1">
-                    <i class="bi bi-cpu"></i> <span th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'Impact Automações'}"></span>
-                </h2>
+                <div th:unless="${empresa.logo != null}">
+                    <div class="logo-fisica-replica">
+                        <span class="logo-fisica-icon"><i class="bi bi-cpu-fill"></i></span>
+                        <span th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'IMPACT'}"></span>
+                    </div>
+                    <div class="logo-subtext">TECNOLOGIA & AUTOMAÇÃO</div>
+                </div>
+            </div>
+            
+            <div class="os-info-box">
+                <div class="os-title">ORDEM DE SERVIÇO</div>
+                <div class="os-number" th:text="'#' + ${os.id}">#0000</div>
+                <div class="os-date">
+                    <i class="bi bi-calendar3 me-1"></i> <span th:text="${#temporals.format(os.dataAbertura, 'dd/MM/yyyy')}">00/00/0000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="premium-section">
+            <div class="premium-section-header"><i class="bi bi-person-bounding-box"></i> Detalhes do Cliente e Responsável Técnico</div>
+            <div class="premium-section-body data-grid">
                 
-                <small class="text-muted fw-bold d-block" th:text="'CNPJ: ' + ${empresa.cnpj != null ? empresa.cnpj : 'Não informado'}"></small>
-                <small class="text-muted d-block" th:text="${empresa.telefone != null ? empresa.telefone : ''}"></small>
+                <div>
+                    <div class="data-item">
+                        <div class="data-label">Cliente / Contratante</div>
+                        <div class="data-value" th:text="${os.cliente?.nome ?: 'Não informado'}">Nome do Cliente</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">CPF / CNPJ</div>
+                        <div class="data-value" th:text="${os.cliente?.cpfCnpj ?: '---'}">000.000.000-00</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Telefone de Contato</div>
+                        <div class="data-value" th:text="${os.cliente?.telefone ?: '---'}">(00) 00000-0000</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Endereço do Imóvel / Serviço</div>
+                        <div class="data-value" th:text="${os.cliente?.endereco ?: '---'}">Endereço completo...</div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="data-item">
+                        <div class="data-label">Técnico Responsável</div>
+                        <div class="data-value text-primary" th:text="${os.tecnico?.nome ?: 'Não designado'}">Nome do Técnico</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Especialidade</div>
+                        <div class="data-value" th:text="${os.tecnico?.especialidade ?: '---'}">Elétrica / Automação</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Tipo de O.S.</div>
+                        <div class="data-value" th:text="${os.tipo ?: 'O.S. DEFINITIVA'}">DEFINITIVA</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Status Atual</div>
+                        <div class="data-value" th:style="${os.status == 'CONCLUIDA' ? 'color: #198754;' : 'color: #dc3545;'}" th:text="${os.status ?: 'PENDENTE'}">STATUS</div>
+                    </div>
+                </div>
             </div>
-            <div class="text-end">
-                <h3 class="text-secondary mb-0">ORDEM DE SERVIÇO</h3>
-                <h1 class="fw-bold text-dark" th:text="'Nº #' + ${os.id}"></h1>
-                <span class="badge bg-light text-dark border"><i class="bi bi-calendar3 me-1"></i> Data: <span th:text="${#temporals.format(os.dataAbertura, 'dd/MM/yyyy')}"></span></span>
+        </div>
+
+        <div class="premium-section">
+            <div class="premium-section-header"><i class="bi bi-clipboard2-pulse"></i> Relatório Técnico / Diagnóstico</div>
+            <div class="premium-section-body">
+                
+                <div th:if="${os.descricao != null and os.descricao != ''}">
+                    <div class="data-label mb-1">Descrição Geral do Serviço</div>
+                    <div class="text-block-premium" th:text="${os.descricao}">Resumo do serviço realizado...</div>
+                </div>
+
+                <div th:if="${os.problemasIdentificados != null and os.problemasIdentificados != ''}" class="mt-3">
+                    <div class="data-label mb-1">Problemas Identificados</div>
+                    <div class="text-block-premium" th:text="${os.problemasIdentificados}">Vazamento notado...</div>
+                </div>
+                
+                <div th:if="${os.servicoRealizado != null and os.servicoRealizado != ''}" class="mt-3">
+                    <div class="data-label mb-1">Serviço a ser Realizado</div>
+                    <div class="text-block-premium" style="border-left-color: #198754;" th:text="${os.servicoRealizado}">Troca de peças...</div>
+                </div>
             </div>
+        </div>
+
+        <div class="premium-section" th:if="${os.materiaisUtilizados != null and !os.materiaisUtilizados.isEmpty()}">
+            <div class="premium-section-header"><i class="bi bi-box-seam"></i> Relação de Materiais Aplicados</div>
+            <table class="premium-table-itens">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">CÓD. ITEM</th>
+                        <th style="width: 55%;">DESCRIÇÃO DO MATERIAL</th>
+                        <th class="text-center" style="width: 15%;">QTD.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="mu : ${os.materiaisUtilizados}">
+                        <td th:text="'ITM-' + ${mu.itemEstoque.id}">ITM-00</td>
+                        <td>
+                            <span class="fw-bold" th:text="${mu.itemEstoque.nome}">Nome do Material</span>
+                            <span class="d-block text-muted" style="font-size: 9px;" th:text="${mu.itemEstoque.descricao}"></span>
+                        </td>
+                        <td class="text-center fw-bold" th:text="${mu.quantidade}">1</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="row">
-            <div class="col-md-6">
-                <div class="info-box h-100">
-                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-person-badge"></i> Dados do Cliente</h6>
-                    <div class="mb-1"><strong>Nome:</strong> <span th:text="${os.cliente?.nome ?: 'Cliente não informado'}"></span></div>
-                    <div class="mb-1"><strong>CPF/CNPJ:</strong> <span th:text="${os.cliente?.cpfCnpj ?: '---'}"></span></div>
-                    <div><strong>Telefone:</strong> <span th:text="${os.cliente?.telefone ?: '---'}"></span></div>
+            <div class="col-md-7">
+                <div th:if="${os.observacoes != null and os.observacoes != ''}">
+                    <div class="data-label mb-1 mt-2">Observações / Condições</div>
+                    <div class="text-block-premium" style="min-height: auto; border-left-color: #ffc107;" th:text="${os.observacoes}"></div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="info-box h-100">
-                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-tools"></i> Responsável Técnico</h6>
-                    <div class="mb-1"><strong>Técnico:</strong> <span th:text="${os.tecnico?.nome ?: 'Técnico não designado'}"></span></div>
-                    <div class="mb-1"><strong>Especialidade:</strong> <span th:text="${os.tecnico?.especialidade ?: '---'}"></span></div>
-                    <div><strong>Status da O.S.:</strong> <span th:text="${os.status ?: 'PENDENTE'}" class="fw-bold text-success"></span></div>
+            <div class="col-md-5">
+                <div class="totals-wrapper">
+                    <div class="os-total-box">
+                        <div class="total-label">Valor Total Fechado</div>
+                        <div class="total-value" th:text="'R$ ' + ${os.valor != null ? #numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA') : '0,00'}">R$ 0,00</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="info-box mt-3">
-            <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="bi bi-card-text"></i> Descrição do Serviço / Diagnóstico</h6>
-            <p style="white-space: pre-line; min-height: 80px;" class="mb-0 text-dark" th:text="${os.descricao ?: 'Nenhuma descrição fornecida.'}"></p>
-        </div>
-
-        <div class="text-end mt-4 mb-5 p-3 bg-light rounded border border-success border-opacity-25">
-            <h5 class="text-secondary d-inline me-3 mb-0">Valor Fechado:</h5>
-            <h3 class="text-success d-inline fw-bold mb-0" th:text="'R$ ' + ${os.valor != null ? #numbers.formatDecimal(os.valor, 1, 'POINT', 2, 'COMMA') : '0,00'}"></h3>
-        </div>
-
-        <div class="row text-center mt-5 pt-5">
-            <div class="col-6">
+        <div class="signature-area">
+            <div class="signature-box">
                 <div class="signature-line"></div>
-                <small class="fw-bold text-dark text-uppercase" th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'Impact Automações'}"></small><br>
-                <small class="text-muted">Prestador do Serviço</small>
+                <div class="signature-label" th:text="${empresa.nomeFantasia != null ? empresa.nomeFantasia : 'IMPACT AUTOMAÇÕES'}">IMPACT</div>
+                <div class="signature-sub">Prestador do Serviço</div>
             </div>
-            <div class="col-6">
+            <div class="signature-box">
                 <div class="signature-line"></div>
-                <small class="fw-bold text-dark text-uppercase" th:text="${os.cliente?.nome ?: 'Cliente / Contratante'}"></small><br>
-                <small class="text-muted">Cliente / Contratante</small>
+                <div class="signature-label" th:text="${os.cliente?.nome ?: 'ASSINATURA DO CLIENTE'}">CLIENTE</div>
+                <div class="signature-sub">Aceite / Contratante</div>
             </div>
         </div>
+
+        <div class="page-footer">
+            <span th:text="${empresa.nomeFantasia ?: 'Impact Automações'}"></span> 
+            <span th:if="${empresa.cnpj != null and empresa.cnpj != ''}" th:text="' | CNPJ: ' + ${empresa.cnpj}"></span>
+            <br>
+            <span th:text="${empresa.endereco ?: 'Endereço não cadastrado'}"></span>
+            <span th:if="${empresa.telefone != null and empresa.telefone != ''}" th:text="' | Tel: ' + ${empresa.telefone}"></span>
+            <br>
+            <span style="font-weight: 700; margin-top: 5px; display: inline-block;">Documento gerado eletronicamente.</span>
+        </div>
+
     </div>
 
     <script>
+        // Ocultar a caixa preta do body e disparar impressão assim que a página renderizar
         window.onload = function() {
             setTimeout(function() {
                 window.print();
-            }, 800); // 800ms garante que o Bootstrap e a Logo desenharam na tela 100% antes de gerar o PDF
+            }, 800); // 800ms garante que as fontes do Google e a Logo carreguem 100%
         }
     </script>
 </body>
