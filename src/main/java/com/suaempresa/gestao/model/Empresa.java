@@ -29,10 +29,15 @@ public class Empresa {
     
     // Guarda se a imagem é "image/png" ou "image/jpeg"
     private String tipoLogo;
+    
+ // Novo campo para a cor do sistema (O valor padrão é o azul do Bootstrap)
+    @Column(length = 7)
+    private String corPrincipal = "#0d6efd";
 
     // ================================
     // GETTERS E SETTERS
     // ================================
+
 
     public Long getId() {
         return id;
@@ -81,5 +86,11 @@ public class Empresa {
     }
     public void setTipoLogo(String tipoLogo) {
         this.tipoLogo = tipoLogo;
+    }
+    public String getCorPrincipal() { 
+    	return corPrincipal; 
+    }
+    public void setCorPrincipal(String corPrincipal) { 
+    	this.corPrincipal = corPrincipal; 
     }
 }

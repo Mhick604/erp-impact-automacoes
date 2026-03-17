@@ -33,31 +33,31 @@
                             <form th:action="@{/empresa/salvar}" method="POST" th:object="${empresa}" enctype="multipart/form-data">
                                 
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}" />
-                                
                                 <input type="hidden" th:field="*{id}">
 
-                                <div class="row g-3">
-                                    
-                                    <div class="col-12 mb-2 text-center bg-light p-4 rounded-4 border border-dashed">
-                                        
-                                        <img th:if="${empresa.logo != null}" th:src="@{/empresa/logo}" class="img-thumbnail mb-3 shadow-sm" style="max-height: 120px; border-radius: 15px; border: 3px solid white;">
-                                        
-                                        <div th:unless="${empresa.logo != null}" class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
-                                            <i class="bi bi-image text-secondary fs-1"></i>
-                                        </div>
-
-                                        <div>
-                                            <label class="form-label small fw-bold text-primary"><i class="bi bi-upload me-1"></i> Logomarca da Empresa (PNG ou JPG)</label>
-                                            <input type="file" name="arquivoLogo" class="form-control form-control-sm mx-auto shadow-sm" accept="image/png, image/jpeg" style="max-width: 400px;">
-                                            <small class="text-muted d-block mt-2">Deixe em branco para manter a logo atual. Fundo transparente (PNG) fica melhor no PDF!</small>
+                                <div class="text-center p-4 bg-light border border-dashed rounded mb-4">
+                                    <div class="mb-3 d-flex justify-content-center">
+                                        <div class="p-2 border rounded bg-white shadow-sm" th:if="${empresa.logo != null and empresa.logo.length > 0}" style="display: inline-block;">
+                                            <img th:src="@{/empresa/logo}" alt="Logo da Empresa" style="max-height: 150px; max-width: 100%; object-fit: contain;">
                                         </div>
                                     </div>
                                     
-                                    <div class="col-12"><hr class="text-muted opacity-25"></div>
+                                    <label class="form-label small fw-bold text-primary"><i class="bi bi-upload me-1"></i> Logomarca da Empresa (PNG ou JPG)</label>
+                                    <input type="file" name="arquivoLogo" class="form-control form-control-sm mx-auto shadow-sm" accept="image/png, image/jpeg" style="max-width: 400px;">
+                                    <small class="text-muted d-block mt-2">Deixe em branco para manter a logo atual. Fundo transparente (PNG) fica melhor no PDF!</small>
+                                </div>
 
+                                <hr class="text-muted opacity-25 mb-4">
+
+                                <div class="row g-3">
                                     <div class="col-md-8">
                                         <label class="form-label small fw-bold text-dark">Nome Fantasia</label>
                                         <input type="text" th:field="*{nomeFantasia}" class="form-control shadow-sm" placeholder="Ex: Impact Automações" required>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold text-dark"><i class="bi bi-palette-fill text-primary"></i> Cor da Marca (Tema)</label>
+                                        <input type="color" th:field="*{corPrincipal}" class="form-control form-control-color w-100 shadow-sm" style="height: 38px; cursor: pointer;" title="Escolha a cor principal da sua empresa">
                                     </div>
                                     
                                     <div class="col-md-4">
@@ -65,12 +65,12 @@
                                         <input type="text" th:field="*{cnpj}" class="form-control shadow-sm" data-mascara="cpfCnpj" maxlength="18" placeholder="00.000.000/0001-00">
                                     </div>
                                     
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label class="form-label small fw-bold text-dark">Telefone de Contato</label>
                                         <input type="text" th:field="*{telefone}" class="form-control shadow-sm" data-mascara="telefone" maxlength="15" placeholder="(00) 00000-0000">
                                     </div>
                                     
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label class="form-label small fw-bold text-dark">E-mail Profissional</label>
                                         <input type="email" th:field="*{email}" class="form-control shadow-sm" placeholder="contato@impact.com">
                                     </div>

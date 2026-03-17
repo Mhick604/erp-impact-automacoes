@@ -2,33 +2,51 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-    <style th:fragment="estilos">
-        :root { --sidebar-width: 80px; --sidebar-hover-width: 250px; }
-        body { padding-left: var(--sidebar-width); background-color: #f8f9fa; }
-        
-        .sidebar {
-            position: fixed; top: 0; left: 0; height: 100vh; width: var(--sidebar-width);
-            background: rgba(33, 37, 41, 0.85); backdrop-filter: blur(8px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1); overflow-x: hidden;
-            transition: width 0.3s ease; z-index: 1000; display: flex;
-            flex-direction: column; padding-top: 20px;
-        }
-        .sidebar:hover { width: var(--sidebar-hover-width); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
-        .sidebar .logo-container { display: flex; align-items: center; padding: 0 25px; margin-bottom: 40px; color: white; white-space: nowrap; }
-        .sidebar .logo-container i { font-size: 1.8rem; min-width: 40px; color: #0d6efd; }
-        .sidebar .logo-container span { font-size: 1.3rem; font-weight: bold; opacity: 0; transition: opacity 0.3s; margin-left: 10px;}
-        .sidebar:hover .logo-container span { opacity: 1; }
-        
-        .sidebar-link { display: flex; align-items: center; padding: 15px 25px; color: rgba(255,255,255,0.6); text-decoration: none; white-space: nowrap; transition: all 0.2s ease; }
-        .sidebar-link i { font-size: 1.4rem; min-width: 40px; }
-        .sidebar-link span { font-size: 1rem; opacity: 0; transition: opacity 0.3s; margin-left: 10px; }
-        .sidebar:hover .sidebar-link span { opacity: 1; }
-        
-        .sidebar-link:hover, .sidebar-link.active { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid #0d6efd; }
-        .sidebar-link.logout { margin-top: auto; margin-bottom: 20px; color: #dc3545; border-left: 4px solid transparent; }
-        .sidebar-link.logout:hover { background: rgba(220, 53, 69, 0.1); border-left-color: #dc3545; }
-        .card-dash { transition: transform 0.2s; } .card-dash:hover { transform: translateY(-5px); }
-    </style>
+	<style th:fragment="estilos" th:inline="css">
+	        :root { 
+	            --sidebar-width: 80px; 
+	            --sidebar-hover-width: 250px; 
+	            --cor-marca: [(${empresaGlobal != null and empresaGlobal.corPrincipal != null and empresaGlobal.corPrincipal != '' ? empresaGlobal.corPrincipal : '#0d6efd'})];
+	        }
+	        
+	        /* Forçando o Bootstrap a usar a Cor da Marca */
+	        .bg-primary { background-color: var(--cor-marca) !important; }
+	        .text-primary { color: var(--cor-marca) !important; }
+	        
+	        /* 🔥 O ANTÍDOTO DO EFEITO CAMALEÃO (Recupera a transparência dos Cards) 🔥 */
+	        .bg-primary.bg-opacity-10 { background-color: color-mix(in srgb, var(--cor-marca) 12%, transparent) !important; }
+	        .bg-primary.bg-opacity-25 { background-color: color-mix(in srgb, var(--cor-marca) 25%, transparent) !important; }
+	        
+	        /* Botões */
+	        .btn-primary { background-color: var(--cor-marca) !important; border-color: var(--cor-marca) !important; color: #ffffff !important; }
+	        .btn-primary:hover { filter: brightness(0.85); color: #ffffff !important; }
+	        .btn-outline-primary { color: var(--cor-marca) !important; border-color: var(--cor-marca) !important; }
+	        .btn-outline-primary:hover { background-color: var(--cor-marca) !important; color: #ffffff !important; }
+	        .border-primary { border-color: var(--cor-marca) !important; }
+	        
+	        /* Estilos do Menu Lateral */
+	        body { padding-left: var(--sidebar-width); background-color: #f8f9fa; }
+	        .sidebar {
+	            position: fixed; top: 0; left: 0; height: 100vh; width: var(--sidebar-width);
+	            background: rgba(33, 37, 41, 0.85); backdrop-filter: blur(8px);
+	            border-right: 1px solid rgba(255, 255, 255, 0.1); overflow-x: hidden;
+	            transition: width 0.3s ease; z-index: 1000; display: flex;
+	            flex-direction: column; padding-top: 20px;
+	        }
+	        .sidebar:hover { width: var(--sidebar-hover-width); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+	        .sidebar .logo-container { display: flex; align-items: center; padding: 0 25px; margin-bottom: 40px; color: white; white-space: nowrap; }
+	        .sidebar .logo-container i { font-size: 1.8rem; min-width: 40px; color: var(--cor-marca); }
+	        .sidebar .logo-container span { font-size: 1.3rem; font-weight: bold; opacity: 0; transition: opacity 0.3s; margin-left: 10px;}
+	        .sidebar:hover .logo-container span { opacity: 1; }
+	        .sidebar-link { display: flex; align-items: center; padding: 15px 25px; color: rgba(255,255,255,0.6); text-decoration: none; white-space: nowrap; transition: all 0.2s ease; }
+	        .sidebar-link i { font-size: 1.4rem; min-width: 40px; }
+	        .sidebar-link span { font-size: 1rem; opacity: 0; transition: opacity 0.3s; margin-left: 10px; }
+	        .sidebar:hover .sidebar-link span { opacity: 1; }
+	        .sidebar-link:hover, .sidebar-link.active { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid var(--cor-marca); }
+	        .sidebar-link.logout { margin-top: auto; margin-bottom: 20px; color: #dc3545; border-left: 4px solid transparent; }
+	        .sidebar-link.logout:hover { background: rgba(220, 53, 69, 0.1); border-left-color: #dc3545; }
+	        .card-dash { transition: transform 0.2s; } .card-dash:hover { transform: translateY(-5px); }
+	    </style>
 
     <div th:fragment="menuLateral(paginaAtiva)" class="sidebar">
         <div class="logo-container">
